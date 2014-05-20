@@ -1,6 +1,7 @@
 ﻿using System;
+using Merchello.Core.Models;
 
-namespace Site.Models
+namespace Models
 {
     public class BasketViewLineItem
     {

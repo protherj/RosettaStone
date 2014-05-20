@@ -7,13 +7,14 @@ using Merchello.Core.Models;
 using Merchello.Web;
 using Merchello.Web.Models.ContentEditing;
 using Merchello.Web.Workflow;
-
+using Models;
+using Site.Models;
 using Umbraco.Core.Logging;
+using Umbraco.Core.Models;
+using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
-using Site.Models;
-
-namespace Site.Controllers
+namespace Controllers
 {
     [PluginController("Site")]
     public class BasketController : SurfaceController
@@ -26,8 +27,7 @@ namespace Site.Controllers
         // hard coded reference
 
         // TODO
-        private const int BasketContentId = 1093;
-        private const int PaymentContentId = 1071;
+        private readonly IPublishedContent _home;
 
         public BasketController()
              : this(MerchelloContext.Current)
@@ -48,6 +48,9 @@ namespace Site.Controllers
             var currentCustomer = customerContext.CurrentCustomer;
 
             _basket = currentCustomer.Basket();
+
+            // totally not efficient = but a quick and dirty
+            _home = Umbraco.Content(UmbracoContext.PageId).AncestorOrSelf(0);
         }
 
 
@@ -112,7 +115,8 @@ namespace Site.Controllers
                 // *** If the versions do not match, the CheckoutPreparation 
                 _basket.Save();
             }
-            return RedirectToUmbracoPage(BasketContentId);
+
+            return RedirectToUmbracoPage(_home.GetPropertyValue<int>("cartPage"));
         }
 
         [HttpPost]
@@ -164,7 +168,7 @@ namespace Site.Controllers
 
             // redirect to the cart page - this is a quick and dirty and should be done differently in
             // practice
-            return RedirectToUmbracoPage(BasketContentId);
+            return RedirectToUmbracoPage(_home.GetPropertyValue<int>("cartPage"));
         }
 
 
@@ -187,8 +191,8 @@ namespace Site.Controllers
             // remove the item by it's pk.  
             _basket.RemoveItem(lineItemKey);
             _basket.Save();
-            
-            return RedirectToUmbracoPage(BasketContentId);
+
+            return RedirectToUmbracoPage(_home.GetPropertyValue<int>("cartPage"));
         }
 
     }

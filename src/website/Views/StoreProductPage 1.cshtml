@@ -1,6 +1,5 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
 @using Merchello.Web
-@using Site.Controllers
 
 @{
     Layout = "StoreBasePage.cshtml";
@@ -23,6 +22,7 @@
             </select>
         </span>
     }
+
 @Html.Action("RenderAddToCart", "Basket", new { area = "Site", product = product })
 
 <h3>BASKET</h3>

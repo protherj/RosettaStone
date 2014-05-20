@@ -1,1 +1,88 @@
-@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@inherits Merchello.Web.Mvc.MerchelloViewPage<BasketViewModel>
+@using Controllers
+@using Models
+
+@(Model.Items.Any() ? RenderBasket() : RenderEmpty())
+
+@helper RenderEmpty()
+{
+    <!-- need to change this link -->
+    <p class="empty"><a href="/catalog/">It's empty</a></p>
+}
+
+
+@helper RenderBasket()
+{
+    // Renders an "Updatable" basket
+    
+        using(Html.BeginUmbracoForm<BasketController>("UpdateBasket"))
+        {
+
+    <table class="cart">
+        <thead>
+            <tr>
+            	<th class="name">Product</th>
+            	<th class="price">Price</th>
+            	<th class="quantity">Quantity</th>
+            	<th class="total">Total</th>
+            	<th class="delete"></th>
+            </tr>
+        </thead>
+        <tbody>
+        @{
+            // iterates through every line item in the basket.  A for loop is used here
+            // so that MVC will properly create the references to the Quantity fields that
+            // are posted back to the controller to be updated.
+            for (var i = 0; i < Model.Items.Count(); i++)
+            {
+                            
+                // gets the associated Umbraco content.
+                // ** This is accomplished through the umbracoContentId being injected into the line item extendedData
+                // ** and provides an example of the sorts of things you can do per line item with custom extendedData values.
+                var content = Model.Items[i].ContentId != 0 ? Umbraco.TypedContent(Model.Items[i].ContentId) : null;
+            
+                <tr>
+                    <td class="image">
+                        @if (content == null)
+                        {
+		               
+		                    <span>@Model.Items[i].Name</span>
+                        }
+                        else
+                        {
+                            // the .WillWork extension method is from Mindfly's common code library "Buzz" ... it is not 
+                            // part of Umbraco or Merchello.
+                            if(content.HasValue("thumbnail"))
+                            {
+                                var src = Umbraco.Media(content.GetPropertyValue("thumbnail")).Url;
+                                <a href="@content.Url"><img src="@src" alt="@Model.Items[i].Name" /></a>
+                            }
+                          
+                            
+                            <a href="@content.Url"><span>@Model.Items[i].Name</span></a>
+                        }                               
+                        @Html.HiddenFor(model => model.Items[i].Key)                 
+                    </td>
+	                <td class="price">@Model.Items[i].Price.ToString("C2")</td>
+                    <td class="quantity">@Html.TextBoxFor(model => model.Items[i].Quantity)</td>
+                    <td class="total">@((Model.Items[i].Price * Model.Items[i].Quantity).ToString("C2"))</td>
+                    <td class="delete">@Html.ActionLink("x", "RemoveItemFromBasket", "Basket", new {lineItemKey = Model.Items[i].Key}, null )</td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+    
+    <div class="subtotal">
+        <span class="label">Sub Total</span>
+		<span class="amount">@Model.TotalPrice.ToString("C2")</span>
+    </div>         
+	
+    <div class="cart-buttons">
+	    <input type="submit" id="update-cart" name="update" value="Update" />
+	    <a href="/checkout/get-the-customers-shipping-address/" class="button">Checkout</a>
+    </div>
+	<a href="/catalog/" class="shop-more">@Umbraco.GetDictionaryValue("merchContinueShoppingLink")</a>
+    }
+    
+}
