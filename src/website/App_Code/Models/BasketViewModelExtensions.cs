@@ -2,8 +2,11 @@
 using Merchello.Core.Models;
 using Merchello.Web.Workflow;
 
-namespace Site.Models
+namespace Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class BasketViewModelExtensions
     {
          public static BasketViewModel ToBasketViewModel(this IBasket basket)

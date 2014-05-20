@@ -1,4 +1,4 @@
-﻿namespace Site.Models
+﻿namespace Models
 {
     // simple basket view model
     public class BasketViewModel

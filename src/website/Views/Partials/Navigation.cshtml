@@ -5,12 +5,12 @@
     var home = CurrentPage.AncestorOrSelf("StoreHomePage");
 }
 
-<section id="nav">
+<section id="nav" class="navbar">
 
     <p><strong>Navigation.cshtml (partial view)</strong><br />
         Make your dynamic menus.</p>
 
-    <ul>
+    <ul class="nav">
         <li><a href="@home.Url">@home.Name</a></li>
         @{
             foreach(var page in home.Children.Where("Visible"))
@@ -26,7 +26,7 @@
     if(page.Id == home.GetPropertyValue<int>("cartPage"))
     {
        
-         <li><a href="@page.Url">@page.Name</a> (@GetCount())</li>
+         <li><a href="@page.Url">@page.Name (@GetCount())</a></li>
     }
     else
     {
