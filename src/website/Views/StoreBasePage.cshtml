@@ -1,0 +1,31 @@
+﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
+@{
+    Layout = null;
+}
+
+<html>
+	<head>
+        <title>@CurrentPage.AncestorOrSelf("StoreHomePage").Name | @CurrentPage.GetPropertyValue("pageTitle")</title>
+        <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="~/css/samplestore.css" rel="stylesheet" />
+	</head>
+
+	<body>
+
+        <section id="logo">
+            <h1>Merchello Developer's Sample Store</h1>
+            <p>It's not meant to be pretty, just educational. :-) Welcome!</p>
+        </section>
+
+        <section id="banner">
+          @Html.Partial("Navigation")
+        </section>
+
+        <section id="content">
+            @RenderBody()
+        </section>
+
+        <script src="~/scripts/bootstrap.min.js"></script>
+	</body>
+</html>

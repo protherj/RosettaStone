@@ -1,4 +1,4 @@
-RosettaStone
-============
+merchellodeveloperssample
+=========================
 
-Very simple example and documentation website build intended to illustrate a working Merchello implementation.
+Merchello Sample Site for Developers, Complete Umbraco-Merchello Install

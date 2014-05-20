@@ -1,0 +1,33 @@
+﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
+@using Merchello.Web.Models.ContentEditing
+@{
+    Layout = "StoreBasePage.cshtml";
+}
+
+<section id="category">
+    
+    <p><strong>ProductCategory.cshtml (view)</strong><br />
+        Display a list of products within a category</p>
+
+    <ul>
+    @foreach(var contentProduct in CurrentPage.Children.Where("Visible"))
+    {
+        <li>@DisplayTheProduct(contentProduct)</li>
+    }   
+    </ul>
+
+</section>
+
+@helper DisplayTheProduct(IPublishedContent productPage)
+{
+    var product = (ProductDisplay)Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
+    
+    <div>
+        <a href="@productPage.Url">@product.Name</a> <!-- product name is different from the productPage Name ... productPage is Umbraco Content, product is a Merchello ProductDisplay -->
+        <div>
+            Does the product have options : @product.ProductOptions.Any()
+
+        </div>
+    </div>
+}

@@ -1,0 +1,43 @@
+@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
+
+@{
+    var home = CurrentPage.AncestorOrSelf("StoreHomePage");
+}
+
+<section id="nav">
+
+    <p><strong>Navigation.cshtml (partial view)</strong><br />
+        Make your dynamic menus.</p>
+
+    <ul>
+        <li><a href="@home.Url">@home.Name</a></li>
+        @{
+            foreach(var page in home.Children.Where("Visible"))
+            {
+               @LinkLooker(home, page)
+            }
+        }
+    </ul>
+</section>
+
+@helper LinkLooker(IPublishedContent home, IPublishedContent page)
+{
+    if(page.Id == home.GetPropertyValue<int>("cartPage"))
+    {
+       
+         <li><a href="@page.Url">@page.Name</a> (@GetCount())</li>
+    }
+    else
+    {
+         <li><a href="@page.Url">@page.Name</a></li>
+    }
+}
+
+@functions 
+{
+    private int GetCount()
+    {
+        return @CurrentCustomer.Basket().Items.Count; 
+    }
+}
