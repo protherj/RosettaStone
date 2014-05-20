@@ -1,0 +1,26 @@
+﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
+@using Site.Controllers
+
+@{
+    Layout = "StoreBasePage.cshtml";
+
+    var product = @Merchello.Product(CurrentPage.merchelloProduct);
+}
+
+<h3>@Merchello.Product(CurrentPage.merchelloProduct).Name</h3>
+<p>@CurrentPage.productDescription</p>
+
+<p>Price: @Merchello.Product(@CurrentPage.merchelloProduct).Price</p>
+    @foreach (var optionitem in @Merchello.Product(@CurrentPage.merchelloProduct).ProductOptions)
+    {
+        <span>@optionitem.Name
+            <select>
+            @foreach (var variantitem in optionitem.Choices)
+            {
+                <option>@variantitem.Name</option>
+            }
+            </select>
+        </span>
+    }
+@Html.Action("RenderAddToCart", "Basket", new { area = "Site", product = product })

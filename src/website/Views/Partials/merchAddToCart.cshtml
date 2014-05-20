@@ -1,0 +1,17 @@
+@inherits Merchello.Web.Mvc.MerchelloViewPage<AddItemModel>
+@using Site.Models
+@using Site.Controllers
+
+@{
+    // ask me later
+    var page = Umbraco.Content(UmbracoContext.PageId);
+    
+    // This is sort of a hack ... and will only work on the product "detail" page
+
+    using (Html.BeginUmbracoForm<BasketController>("AddToBasket", new { area = "Site" }))
+    {
+       <label>Drop down list for options</label>
+    
+        @Html.HiddenFor(x => x.ContentId)
+    }
+}
