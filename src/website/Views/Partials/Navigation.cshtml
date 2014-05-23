@@ -10,15 +10,17 @@
     <p><strong>Navigation.cshtml (partial view)</strong><br />
         Make your dynamic menus.</p>
 
-    <ul class="nav">
-        <li><a href="@home.Url">@home.Name</a></li>
-        @{
-            foreach(var page in home.Children.Where("Visible"))
-            {
-               @LinkLooker(home, page)
+    <div class="navbar-header">
+        <ul class="navbar-nav">
+            <li><a href="@home.Url">@home.Name</a></li>
+            @{
+                foreach(var page in home.Children.Where("Visible"))
+                {
+                   @LinkLooker(home, page)
+                }
             }
-        }
-    </ul>
+        </ul>
+    </div>
 </section>
 
 @helper LinkLooker(IPublishedContent home, IPublishedContent page)
