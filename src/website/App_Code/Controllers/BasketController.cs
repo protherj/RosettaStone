@@ -19,16 +19,16 @@ namespace Controllers
     [PluginController("Site")]
     public class BasketController : SurfaceController
     {
-        private readonly IBasket _basket;
+        private IBasket _basket;
 
         private readonly IMerchelloContext _merchelloContext;
 
         // These would normally be passed in or looked up so that there is not a 
         // hard coded reference
 
-        // TODO
-        private readonly IPublishedContent _home;
-
+        private IPublishedContent _home;
+        private IPublishedContent _basketPage;
+        
         public BasketController()
              : this(MerchelloContext.Current)
          {}
@@ -44,15 +44,17 @@ namespace Controllers
 
             _merchelloContext = merchelloContext;
 
+            Initialize();
+        }
+
+        private void Initialize()
+        {
             var customerContext = new CustomerContext(UmbracoContext);
             var currentCustomer = customerContext.CurrentCustomer;
 
             _basket = currentCustomer.Basket();
 
-            // totally not efficient = but a quick and dirty
-            _home = Umbraco.Content(UmbracoContext.PageId).AncestorOrSelf(0);
         }
-
 
         /// <summary>
         /// Renders the basket on the page
@@ -64,7 +66,7 @@ namespace Controllers
             // ToBasketViewModel is an extension that
             // translates the IBasket to a local view model which
             // can be submitted via a form.
-            return PartialView("merchBasket", _basket.ToBasketViewModel());
+            return PartialView("RosettaBasket", _basket.ToBasketViewModel());
         }
 
         /// <summary>
@@ -116,7 +118,8 @@ namespace Controllers
                 _basket.Save();
             }
 
-            return RedirectToUmbracoPage(_home.GetPropertyValue<int>("cartPage"));
+            
+            return RedirectToUmbracoPage(BasketPage.Id);
         }
 
         [HttpPost]
@@ -166,9 +169,7 @@ namespace Controllers
             }
             _basket.Save();
 
-            // redirect to the cart page - this is a quick and dirty and should be done differently in
-            // practice
-            return RedirectToUmbracoPage(_home.GetPropertyValue<int>("cartPage"));
+            return RedirectToUmbracoPage(BasketPage.Id);
         }
 
 
@@ -192,8 +193,18 @@ namespace Controllers
             _basket.RemoveItem(lineItemKey);
             _basket.Save();
 
-            return RedirectToUmbracoPage(_home.GetPropertyValue<int>("cartPage"));
+            return RedirectToCurrentUmbracoUrl();
         }
 
+
+        private IPublishedContent Home
+        {
+            get { return _home ?? (_home = Umbraco.TypedContent(UmbracoContext.PageId).AncestorOrSelf(1)); }
+        }
+
+        private IPublishedContent BasketPage
+        {
+            get { return _basketPage ?? (_basketPage = Umbraco.TypedContent(_home.GetPropertyValue<int>("cartPage"))); }
+        }
     }
 }
