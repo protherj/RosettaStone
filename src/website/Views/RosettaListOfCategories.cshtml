@@ -20,13 +20,13 @@
             @foreach (IPublishedContent category in CurrentPage.Children.Where("Visible"))
             {
             
-                <li style="padding-bottom: 15px">
+                <li class="category">
                     <!-- Category image is one of the Umbraco content-picker properties we assigned to the Category's document type. -->
                     <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
                     @if (category.HasProperty("categoryImage") && category.HasValue("categoryImage"))
                     {
                         IPublishedContent image = Umbraco.Media(category.GetPropertyValue("categoryImage"));
-                        <img src="@image.Url" alt="@image.Name" height="50" style="float:left; padding: 5px" />
+                        <img src="@image.Url" alt="@image.Name" class="productimage" />
                     }
 
                     <a href="@category.Url"><h2>@category.Name</h2></a>

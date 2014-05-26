@@ -12,8 +12,6 @@
     
     <div class="content">
         <p>Loop through and display all products in your chosen category.</p>
-        <p>How does Merchello know which products are in a given category? Well, technically we're just looping through every page that is a "child"
-            of the category page or folder that we linked from.</p>
     </div>
 
     <!-- This is a header for the category page/grouping we're looking at -->
@@ -28,6 +26,16 @@
     }   
     </ul>
 
+    
+    <div class="content" style="clear:both;">
+        <p>How does Merchello know which products are in our categories? </p>
+        <ul>
+            <li>In this case, we're looping through every "child" page of our category page.</li>
+            <li>It's that simple!</li>
+        </ul>
+    </div>
+
+
 </section>
 
 <!-- Helper function that accepts a page as parameter. Returns a visual display for each individual product in the list. -->
@@ -35,7 +43,7 @@
 {
     var product = (ProductDisplay)Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
    
-    <li style="padding-bottom: 10px;">
+    <li class="product">
 
         <a href="@productPage.Url">
             
@@ -44,7 +52,7 @@
             @if (productPage.HasProperty("productImage") && productPage.HasValue("productImage"))
             {
                 IPublishedContent image = Umbraco.Media(productPage.GetPropertyValue("productImage"));
-                <img src="@image.Url" alt="@image.Name" width="70" style="float:left; padding: 5px" />
+                <img src="@image.Url" alt="@image.Name" class="productimage" />
             }
 
             <!-- Not that productPage.Name would give us Umbraco's page name, but prouct.Name gives us the Merchello product name -->
@@ -70,6 +78,7 @@
     </li>
         
 }
+
 
 
 @functions

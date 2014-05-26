@@ -7,14 +7,13 @@
 }
 
 
-<!-- TODO insert bootstrap styles here -->
-
+<!-- There is some very basic developer(not designer)-written CSS in rosettastonestyles.css that will make this menu horizontal -->
 <section id="navigation_partial">
 
     <p class="documentation"><strong>Navigation.cshtml (partial view)</strong><br />
-    This menu is dynamically created based on the pages in your site, and the number of items in your basket.</p>
+    This menu is dynamically created based on the root pages in your site, and the number of items in your basket.</p>
 
-    <ul>
+    <ul id="nav">
 
         <!-- start with a link to the home page -->
         <li><a href="@home.Url">@home.Name</a></li>
@@ -29,6 +28,11 @@
         }
 
     </ul>
+
+
+
+
+
 
 </section>
 

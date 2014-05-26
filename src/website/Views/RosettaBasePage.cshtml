@@ -9,7 +9,7 @@
         <!-- Note: AncestorOrSelf only works if you hard-code the name of your home page as the parameter. -->
         <title>@CurrentPage.AncestorOrSelf("RosettaHomePage").PageTitle | @CurrentPage.GetPropertyValue("pageTitle")</title>
 
-        <!-- We are using twitter bootstrap styles, as well as our own. Note the reference to the bootstrap js at the bottom of this file, as well -->
+        <!-- We are using twitter bootstrap styles, as well as our own. Refer to getbootstrap.com -->
         <link href="~/css/bootstrap.min.css" rel="stylesheet" />
         <link href="~/css/rosettastonestyles.css" rel="stylesheet" />
 	</head>
@@ -18,12 +18,14 @@
 
         <section id="base_page">
             
+            <div id="logo">
+                <!-- Bad practice. Hardcoded logo image. I know you'd never do this. :-) -->
+                <img src="/media/1017/dxdx0yz-_bigger.png" alt="Merchello Logo" height="50" />
+            </div>
+
             <p class="documentation"><strong>RosettaBasePage.cshtml (view)</strong><br />
             Our base page contains the basic setup for our site, such as CSS setup and placing the navigation and logo throughout the site.</p>
  
-            <!-- Put a header or other permanent base page items here -->
-            <!-- TODO add logo -->
-
             <!-- Display partial view for navigation here, so it will show on every page -->
             @Html.Partial("Navigation")
 
