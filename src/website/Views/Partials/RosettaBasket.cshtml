@@ -1,4 +1,4 @@
-@inherits Merchello.Web.Mvc.MerchelloViewPage<BasketViewModel>
+﻿@inherits Merchello.Web.Mvc.MerchelloViewPage<BasketViewModel>
 @using Controllers
 @using Models
 
@@ -6,8 +6,7 @@
 
 @helper RenderEmpty()
 {
-    <!-- need to change this link -->
-    <p class="empty"><a href="/catalog/">It's empty</a></p>
+    <p><a href="/">There's nothing in your shopping cart, get shopping!</a></p>
 }
 
 
@@ -50,8 +49,6 @@
                         }
                         else
                         {
-                            // the .WillWork extension method is from Mindfly's common code library "Buzz" ... it is not 
-                            // part of Umbraco or Merchello.
                             if(content.HasValue("thumbnail"))
                             {
                                 var src = Umbraco.Media(content.GetPropertyValue("thumbnail")).Url;
@@ -82,7 +79,7 @@
 	    <input type="submit" id="update-cart" name="update" value="Update" />
 	    <a href="/checkout/get-the-customers-shipping-address/" class="button">Checkout</a>
     </div>
-	<a href="/catalog/" class="shop-more">@Umbraco.GetDictionaryValue("merchContinueShoppingLink")</a>
+	<a href="/" class="shop-more">@Umbraco.GetDictionaryValue("merchContinueShoppingLink")</a>
     }
     
 }

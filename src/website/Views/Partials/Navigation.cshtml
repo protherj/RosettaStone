@@ -2,30 +2,45 @@
 @using Merchello.Web
 
 @{
-    var home = CurrentPage.AncestorOrSelf("StoreHomePage");
+    <!-- Note: AncestorOrSelf only works if you hard-code the name of your home page as the parameter. -->
+    var home = CurrentPage.AncestorOrSelf("RosettaHomePage");
 }
 
-<section id="nav" class="navbar">
 
-    <p><strong>Navigation.cshtml (partial view)</strong><br />
-        Make your dynamic menus.</p>
+<!-- TODO insert bootstrap styles here -->
 
-    <div class="navbar-header">
-        <ul class="navbar-nav">
-            <li><a href="@home.Url">@home.Name</a></li>
-            @{
-                foreach(var page in home.Children.Where("Visible"))
-                {
-                   @LinkLooker(home, page)
-                }
+<section id="navigation_partial">
+
+    <p class="documentation"><strong>Navigation.cshtml (partial view)</strong><br />
+    This menu is dynamically created based on the pages in your site, and the number of items in your basket.</p>
+
+    <ul>
+
+        <!-- start with a link to the home page -->
+        <li><a href="@home.Url">@home.Name</a></li>
+
+        <!-- in the razor code here, we iterate through each child of the home page that is set to "visible" -->
+        <!-- we also access a helper function which we called LinkLooker, see below for details -->
+        @{
+            foreach(var page in home.Children.Where("Visible"))
+            {
+                @LinkLooker(home, page)
             }
-        </ul>
-    </div>
+        }
+
+    </ul>
+
 </section>
+
+
+<!-- The helper function "LinkLooker" below takes the home page and current page as parameters, and returns a hyperlinked bullet <li> item. -->
+<!-- If the returned page is your shopping cart page, the <li> also includes the current number of items in the basket (using another helper function below) -->
+<!-- This works because we gave our Home Page's document type a special property called "cartPage" (content picker), -->
+    <!-- and on the home page we set it to equal our store's basket page -->
 
 @helper LinkLooker(IPublishedContent home, IPublishedContent page)
 {
-    if(page.Id == home.GetPropertyValue<int>("cartPage"))
+    if(page.Id == home.GetPropertyValue<int>("cartPage")) //this accesses our home page's custom property for "cartPage", see explanation above
     {
        
          <li><a href="@page.Url">@page.Name (@GetCount())</a></li>
@@ -35,6 +50,9 @@
          <li><a href="@page.Url">@page.Name</a></li>
     }
 }
+
+
+<!-- The helper function "GetCount" returns the number of items that are in the current customer's basket. No parameters. -->
 
 @functions 
 {

@@ -1,0 +1,51 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "RosettaBasePage.cshtml";
+}
+
+<section id="list_categories">
+    
+    <p class="documentation"><strong>RosettaListOfCategories.cshtml (view)</strong><br />
+    This view iterates through each category you've entered in Merchello back office and puts them in a list.</p>
+ 
+    <div class="content">
+        <p>Loop through your categories and do something exciting with them, like... make a list of bean links:</p>
+    </div>
+
+
+    @if (CurrentPage.Children.Any())
+    {
+        <ul>
+            <!-- And here they are, each child page of the current page as a list. Pretty basic. -->
+            @foreach (IPublishedContent category in CurrentPage.Children.Where("Visible"))
+            {
+            
+                <li style="padding-bottom: 15px">
+                    <!-- Category image is one of the Umbraco content-picker properties we assigned to the Category's document type. -->
+                    <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
+                    @if (category.HasProperty("categoryImage") && category.HasValue("categoryImage"))
+                    {
+                        IPublishedContent image = Umbraco.Media(category.GetPropertyValue("categoryImage"));
+                        <img src="@image.Url" alt="@image.Name" height="50" style="float:left; padding: 5px" />
+                    }
+
+                    <a href="@category.Url"><h2>@category.Name</h2></a>
+
+                </li>
+            }
+        </ul>
+    }
+
+    
+    
+    <div class="content" style="clear:both;">
+        <p>How does Merchello know what your categories are, you ask?</p>
+        <p>Well, technically speaking it doesn't. It's using the Umbraco page structure to iterate through children. Here's how we've set ours up:</p>
+        <ul>
+            <li>At the root of our site, we have one "Catalog Folder" document type, which only allows children of the Doc Type "Category"</li>
+            <li>Beneath the Catalog folder, we create one "Category" page (based on the template and document type of the same name) for each logical group of products. The "Category" document type allows children of the document type "Product"</li>
+            <li>And within each Category, there are as many "Product" pages as you'd like (based on the template and document type "Product"). View any product detail page in this site for more information on setting up products in Merchello</li>
+        </ul>
+        <p>And voila, an easy and social acceptable e-commerce data structure: Catalog > Categories > Products.</p>
+    </div>
+</section>

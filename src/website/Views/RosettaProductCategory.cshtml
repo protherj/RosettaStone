@@ -1,0 +1,88 @@
+﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
+@using Merchello.Web.Models.ContentEditing
+@{
+    Layout = "RosettaBasePage.cshtml";
+}
+
+<section id="display_category">
+
+    <p class="documentation"><strong>RosettaProductCategory.cshtml (view)</strong><br />
+    This view displays a list of all products within one category</p>
+    
+    <div class="content">
+        <p>Loop through and display all products in your chosen category.</p>
+        <p>How does Merchello know which products are in a given category? Well, technically we're just looping through every page that is a "child"
+            of the category page or folder that we linked from.</p>
+    </div>
+
+    <!-- This is a header for the category page/grouping we're looking at -->
+    <h1>@CurrentPage.Name</h1>
+
+    <!-- Loop through each product (page, technically, but because we're in a product category where every page = product) and make a list -->
+    <ul>
+    @foreach (IPublishedContent contentProduct in CurrentPage.Children.Where("Visible"))
+    {
+        <!-- Helper function "DisplayTheProduct" creates <li> display for each individual item -->
+        @DisplayTheProduct(contentProduct)
+    }   
+    </ul>
+
+</section>
+
+<!-- Helper function that accepts a page as parameter. Returns a visual display for each individual product in the list. -->
+@helper DisplayTheProduct(IPublishedContent productPage)
+{
+    var product = (ProductDisplay)Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
+   
+    <li style="padding-bottom: 10px;">
+
+        <a href="@productPage.Url">
+            
+            <!-- Product image is one of the Umbraco content-picker properties we assigned to the Product's document type. -->
+            <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
+            @if (productPage.HasProperty("productImage") && productPage.HasValue("productImage"))
+            {
+                IPublishedContent image = Umbraco.Media(productPage.GetPropertyValue("productImage"));
+                <img src="@image.Url" alt="@image.Name" width="70" style="float:left; padding: 5px" />
+            }
+
+            <!-- Not that productPage.Name would give us Umbraco's page name, but prouct.Name gives us the Merchello product name -->
+            <h2>@product.Name</h2> 
+
+        </a>
+        <p>
+            <!-- Here's one way to verify that a Umbraco content page is linked to a Merchello Product: -->
+            <!--   By checking the merchelloProduct picker we've set up for the Umbraco content page -->
+            @if (productPage.HasProperty("merchelloProduct") && productPage.HasValue("merchelloProduct"))
+            {
+                
+                var merchProduct = Merchello.Product(productPage.GetPropertyValue<string>("merchelloProduct"));
+                if (merchProduct != null)
+                { 
+                    
+                <!-- Show the word "from" if product has variants (to indicate that there are more prices), otherwise display the price using GetFromPrice function -->
+                @(merchProduct.ProductVariants.Any() ? MvcHtmlString.Create("<em>from</em> ") : MvcHtmlString.Empty) @GetFromPrice(merchProduct)
+                }
+            }
+        </p>
+       
+    </li>
+        
+}
+
+
+@functions
+{
+
+    private string GetFromPrice(ProductDisplay product)
+    {
+        if (product == null) return string.Empty;
+        if (product.ProductVariants.Any())
+        {
+            return product.ProductVariants.OrderBy(x => x.Price).First().Price.ToString("C");
+        }
+        return product.Price.ToString("C");
+    }
+
+}

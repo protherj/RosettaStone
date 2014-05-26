@@ -1,0 +1,30 @@
+/*!
+ * MERCHELLO.COM 
+ * Rosetta Stone, The Merchello Learning Site
+ */
+
+
+body 
+{
+  margin			: 10px;
+}
+
+section  
+{
+    border			: 1px solid #bcb9b9;
+	padding			: 10px;
+	margin-bottom	: 5px;
+}
+
+.documentation 
+{
+    color           : #bcb9b9;
+}
+
+div.content 
+{
+    font-size       : 1.4em;
+    padding         : 10px;
+}
+
+/* EDITOR PROPERTIES - PLEASE DON'T DELETE THIS LINE TO AVOID DUPLICATE PROPERTIES */

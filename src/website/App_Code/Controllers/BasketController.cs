@@ -89,7 +89,7 @@ namespace Controllers
                     ContentId = contentId
                 };
 
-            return PartialView("merchAddToCart", model);
+            return PartialView("RosettaAddToCart", model);
         }
 
         /// <summary>
