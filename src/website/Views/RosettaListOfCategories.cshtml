@@ -40,11 +40,11 @@
     
     <div class="content" style="clear:both;">
         <p>How does Merchello know what your categories are, you ask?</p>
-        <p>Well, technically speaking it doesn't. It's using the Umbraco page structure to iterate through children. Here's how we've set ours up:</p>
+        <p>Well, technically speaking it doesn't. It's using the Umbraco content structure to iterate through children. Here's how we've set ours up:</p>
         <ul>
-            <li>At the root of our site, we have one "Catalog Folder" document type, which only allows children of the Doc Type "Category"</li>
-            <li>Beneath the Catalog folder, we create one "Category" page (based on the template and document type of the same name) for each logical group of products. The "Category" document type allows children of the document type "Product"</li>
-            <li>And within each Category, there are as many "Product" pages as you'd like (based on the template and document type "Product"). View any product detail page in this site for more information on setting up products in Merchello</li>
+            <li>At the root of our site, we have one "Catalog Folder" document type, which only allows children of the document type "Category"</li>
+            <li>Beneath the Catalog folder, we create one "Category" content item (based on the template and document type of the same name) for each logical group of products. The "Category" document type allows children of the document type "Product"</li>
+            <li>And within each Category, there are as many "Product" content items as you'd like (based on the template and document type "Product"). View any product detail page in this site for more information on setting up products in Merchello</li>
         </ul>
         <p>And voila, an easy and social acceptable e-commerce data structure: Catalog > Categories > Products.</p>
     </div>

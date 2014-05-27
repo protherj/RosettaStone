@@ -14,11 +14,11 @@
     @if (CurrentPage.HasProperty("merchelloProduct") && CurrentPage.HasValue("merchelloProduct"))
     {
     
-        <!-- Product image is one of the Umbraco content-picker properties we assigned to the Product's document type -->
+        <!-- Product image is one of the Umbraco content-picker properties we created and assigned to the Product content's document type -->
         if (CurrentPage.HasProperty("productImage") && CurrentPage.HasValue("productImage"))
         {
             IPublishedContent image = Umbraco.Media(CurrentPage.GetPropertyValue("productImage"));
-            <img src="@image.Url" alt="@image.Name" height="250" style="float:left;padding:5px;" />
+            <img src="@image.Url" alt="@image.Name" class="productimagedetail" />
         }
     
         <!-- Note this important distinction: Sometimes we are accessing the Umbraco page content ("CurrentPage") -->
@@ -27,18 +27,20 @@
         <p>@CurrentPage.productDescription</p>
         <p>@product.Price.ToString("C")</p>
 
-        foreach (var optionitem in product.ProductOptions)
+        <!-- This section is commented out because the options are being displayed from the AddToCart partial view called below, -->
+        <!--    but this has been left to show you how to loop through product options -->
+        @*foreach (var optionitem in product.ProductOptions)
         {
-            <span>@optionitem.Name
+            @optionitem.Name
                 <select>
                 @foreach (var variantitem in optionitem.Choices)
-                {
-                    <option>@variantitem.Name</option>
-                }
+                { <option>@variantitem.Name</option> }
                 </select>
-            </span>
-        }
+        }*@
         
+        
+        <!-- We're calling the RenderAddToCart action that can be found in BasketController.cs code. -->
+        <!--    This action will take care of displaying options if needed and the 'Add To Cart' button (it recursively calls the "RosettaAddToCart.cshtml" partial view) -->
         @Html.Action("RenderAddToCart", "Basket", new { area = "Site", product = product })
      }
 

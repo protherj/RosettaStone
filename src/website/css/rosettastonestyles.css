@@ -48,6 +48,14 @@ img.productimage
     padding-right   : 15px;
 }
 
+img.productimagedetail 
+{
+    height          : 300px;
+    float           : left;
+    padding         : 15px;
+}
+
+
 /* -- simple css to make the navigation bar horizontal -- */
 
 section #navigation_partial 

@@ -25,6 +25,9 @@ namespace Controllers
 
         // These would normally be passed in or looked up so that there is not a 
         // hard coded reference
+// TODO
+        private const int BasketContentId = 1062;
+        private const int PaymentContentId = 1074;
 
         private IPublishedContent _home;
         private IPublishedContent _basketPage;
@@ -44,7 +47,10 @@ namespace Controllers
 
             _merchelloContext = merchelloContext;
 
-            Initialize();
+            var customerContext = new CustomerContext(UmbracoContext);
+            var currentCustomer = customerContext.CurrentCustomer;
+
+            _basket = currentCustomer.Basket();
         }
 
         private void Initialize()
@@ -118,8 +124,8 @@ namespace Controllers
                 _basket.Save();
             }
 
-            
-            return RedirectToUmbracoPage(BasketPage.Id);
+
+            return RedirectToUmbracoPage(BasketContentId);
         }
 
         [HttpPost]
@@ -169,7 +175,7 @@ namespace Controllers
             }
             _basket.Save();
 
-            return RedirectToUmbracoPage(BasketPage.Id);
+            return RedirectToUmbracoPage(BasketContentId);
         }
 
 
@@ -193,7 +199,7 @@ namespace Controllers
             _basket.RemoveItem(lineItemKey);
             _basket.Save();
 
-            return RedirectToCurrentUmbracoUrl();
+            return RedirectToUmbracoPage(BasketContentId);
         }
 
 
