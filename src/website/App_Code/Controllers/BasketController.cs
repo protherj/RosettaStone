@@ -150,23 +150,9 @@ namespace Controllers
                 
                 var variant = _merchelloContext.Services.ProductVariantService.GetProductVariantWithAttributes(product, model.OptionChoices);
                 
-                // TODO : This is an error in the back office ... name should already include the variant info
-                // Begin fix -------------------------------------------------------------------------------------------
-                // We need to save the variant name (T-Shirt - blue, large) instead of (T-Shirt).  This is done in the
-                // ProductVariantService CreateProductVariantWithKey ... but obviously we're not using that method
-                // and must be doing it himself in the Back Office before he sends it to the server - likely just 
-                // calling save.  http://issues.merchello.com/youtrack/issue/M-153
-                var name = product.Name;
-                foreach (var att in variant.Attributes)
-                {
-                    if (name == product.Name) name += " - ";
-                    else
-                        name += ", ";
-                    name += " " + att.Name;
-                }
-                // end fix ----------------------------------------------------------------------------------------------
+
                 
-                _basket.AddItem(variant, name, 1, extendedData);
+                _basket.AddItem(variant, variant.Name, 1, extendedData);
             }
             else
             {
