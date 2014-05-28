@@ -26,18 +26,7 @@
         <h3>@product.Name</h3>
         <p>@CurrentPage.productDescription</p>
         <p>@product.Price.ToString("C")</p>
-
-        <!-- This section is commented out because the options are being displayed from the AddToCart partial view called below, -->
-        <!--    but this has been left to show you how to loop through product options -->
-        @*foreach (var optionitem in product.ProductOptions)
-        {
-            @optionitem.Name
-                <select>
-                @foreach (var variantitem in optionitem.Choices)
-                { <option>@variantitem.Name</option> }
-                </select>
-        }*@
-        
+      
         
         <!-- We're calling the RenderAddToCart action that can be found in BasketController.cs code. -->
         <!--    This action will take care of displaying options if needed and the 'Add To Cart' button (it recursively calls the "RosettaAddToCart.cshtml" partial view) -->
