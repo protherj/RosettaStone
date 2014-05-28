@@ -2,12 +2,12 @@
 @using Merchello.Web
 @{
     Layout = null;
+    IPublishedContent home = Umbraco.TypedContent(UmbracoContext.PageId).AncestorOrSelf(1);
 }
 
 <html>
 	<head>
-        <!-- Note: AncestorOrSelf only works if you hard-code the name of your home page as the parameter. -->
-        <title>@CurrentPage.AncestorOrSelf("RosettaHomePage").PageTitle | @CurrentPage.GetPropertyValue("pageTitle")</title>
+        <title>@home.GetPropertyValue("pageTitle") | @CurrentPage.GetPropertyValue("pageTitle")</title>
 
         <!-- We are using twitter bootstrap styles, as well as our own. Refer to getbootstrap.com -->
         <link href="~/css/bootstrap.min.css" rel="stylesheet" />
@@ -17,7 +17,7 @@
 	<body>
 
         <section id="base_page">
-            
+           
             <div id="logo">
                 <!-- Bad practice. Hardcoded logo image. I know you'd never do this. :-) -->
                 <img src="/media/1017/dxdx0yz-_bigger.png" alt="Merchello Logo" height="50" />

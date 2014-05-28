@@ -19,12 +19,10 @@
                     }).ToList();
                 choices.First().Selected = true;
                 <label class="pseudo dropdown" for="@option.Name.ToLower().Replace(" ", "-")">
-                    <span class="wrapper">
                         @Html.ValidationMessageFor(x => x.OptionChoices, "Please select one")
                         @Html.DropDownListFor(x => x.OptionChoices[index], choices, new { name = option.Name.ToLower().Replace(" ", "-"), id = option.Key, @class="ProductVariants", OnChange = "merch.merchProducts.getUpdatedVariants(this)" })
                         @*Needs to switch out when an option in the dropdown list is selected*@
                         <span class="value" id="@option.Key-value">@choices.First().Text</span>
-                    </span>
                 </label>
 
                 index = index + 1;

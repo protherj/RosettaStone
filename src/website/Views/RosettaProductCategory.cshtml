@@ -17,7 +17,7 @@
     <!-- This is a header for the category page/grouping we're looking at -->
     <h1>@CurrentPage.Name</h1>
 
-    <!-- Loop through each product (page, technically, but because we're in a product category where every page = product) and make a list -->
+    <!-- Loop through each product (Umbraco content item, technically, but because we're in a product category where every page = product it works the same) and make a list -->
     <ul>
     @foreach (IPublishedContent contentProduct in CurrentPage.Children.Where("Visible"))
     {
@@ -30,7 +30,7 @@
     <div class="content" style="clear:both;">
         <p>How does Merchello know which products are in our categories? </p>
         <ul>
-            <li>In this case, we're looping through every "child" page of our category page.</li>
+            <li>In this case, we're looping through every "child" content item within our category.</li>
             <li>It's that simple!</li>
         </ul>
     </div>
@@ -38,7 +38,7 @@
 
 </section>
 
-<!-- Helper function that accepts a page as parameter. Returns a visual display for each individual product in the list. -->
+<!-- Helper function that accepts Umbraco content item as parameter. Returns a visual display for each individual product in the list. -->
 @helper DisplayTheProduct(IPublishedContent productPage)
 {
     var product = (ProductDisplay)Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
