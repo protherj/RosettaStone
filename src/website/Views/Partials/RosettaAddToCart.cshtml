@@ -2,10 +2,15 @@
 @using Controllers
 @using Site.Models
 
+<section id="addtocart_partial">
+
+    <p class="documentation"><strong>RosettaAddToCart.cshtml (partial view)</strong><br />
+    </p>
+
 @{
     var product = Merchello.Product(Model.ProductKey);
 
-    
+    <!--- If there are option variants, display them as a drop down -->
     using(Html.BeginUmbracoForm<BasketController>("AddToBasket", Model))
     {
         if (product.ProductOptions.Any())
@@ -19,10 +24,11 @@
                     }).ToList();
                 choices.First().Selected = true;
                 <label class="pseudo dropdown" for="@option.Name.ToLower().Replace(" ", "-")">
-                        @Html.ValidationMessageFor(x => x.OptionChoices, "Please select one")
-                        @Html.DropDownListFor(x => x.OptionChoices[index], choices, new { name = option.Name.ToLower().Replace(" ", "-"), id = option.Key, @class="ProductVariants", OnChange = "merch.merchProducts.getUpdatedVariants(this)" })
-                        @*Needs to switch out when an option in the dropdown list is selected*@
-                        <span class="value" id="@option.Key-value">@choices.First().Text</span>
+                    @option.Name
+
+                    @Html.ValidationMessageFor(x => x.OptionChoices, "Please select one")
+                    @Html.DropDownListFor(x => x.OptionChoices[index], choices, new { name = option.Name.ToLower().Replace(" ", "-"), id = option.Key, @class="ProductVariants", OnChange = "merch.merchProducts.getUpdatedVariants(this)" })
+                    
                 </label>
 
                 index = index + 1;
@@ -34,3 +40,5 @@
         <input type="submit" value="Add to Basket"/>
     }
 }
+
+</section>
