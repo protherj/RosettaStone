@@ -152,3 +152,4 @@ $RECYCLE.BIN/
 .DS_Store
 src/website/App_Data/Logs/UmbracoTraceLog.txt
 src/website/App_Data/umbraco.config
+src/website/App_Data/Logs/
