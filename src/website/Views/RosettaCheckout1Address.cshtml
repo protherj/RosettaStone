@@ -1,12 +1,54 @@
-﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
 
 @{
     Layout = "RosettaBasePage.cshtml";
 }
 
+<!-- Quick and easy way to check whether the current shopping basket is empty. -->
+<!-- This only works if you inherit from the MerchelloTemplatePage -->
+@if (CurrentCustomer.Basket().IsEmpty)
+{
+    Response.Redirect("/");
+}
 
 <section>
 
-    <p class="documentation"><strong>RosettaBaseCheckoutPage.cshtml (view)</strong><br /></p>
+    <p class="documentation"><strong>RosettaCheckout1Address.cshtml (view)</strong><br /></p>
 
+
+    <form class="checkout" name="checkout">
+
+        <fieldset>
+            <div class="fields">
+                <h2>First Name</h2>
+                <label class="half">
+                    <span>@Umbraco.GetDictionaryValue("merchFirstNamePH")</span>
+                    <input type="text" name="contactFirst" placeholder="@Umbraco.GetDictionaryValue("merchFirstNamePH")" data-ng-model="contactInfo.firstName" required />
+                </label>
+                <label class="half">
+                    <span>@Umbraco.GetDictionaryValue("merchLastNamePH")</span>
+                    <input type="text" name="contactLast" placeholder="@Umbraco.GetDictionaryValue("merchLastNamePH")" data-ng-model="contactInfo.lastName" required />
+                </label>
+                <label>
+                    <span>@Umbraco.GetDictionaryValue("merchEmailPH")</span>
+                    <input type="text" name="contactEmail" placeholder="@Umbraco.GetDictionaryValue("merchEmailPH")" data-ng-model="contactInfo.email" required />
+                </label>
+                <input type="submit" value="@Umbraco.GetDictionaryValue("merchNextButton")" data-ng-click="completeContactInfo()" />
+                <div class="validation-error" data-ng-class="{ 'open': visible.errors.contactInfo }">
+                    <ul>
+                        <li data-ng-show="checkout.contactFirst.$invalid" class="error">First Name is a required field.</li>
+                        <li data-ng-show="checkout.contactLast.$invalid" class="error">Last Name is a required field.</li>
+                        <li data-ng-show="checkout.contactEmail.$invalid" class="error">Email is a required field.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="results" data-ng-class="{ 'open': completed.contactInfo && visible.results.contactInfo }">
+                <button type="button" class="edit" data-ng-click="visible.results.contactInfo = false">@Umbraco.GetDictionaryValue("merchEditLink")</button>
+                <span class="fn">{{contactInfo.firstName}} {{contactInfo.lastName}}</span>
+                <span class="email">{{contactInfo.email}}</span>
+            </div>
+        </fieldset>
+
+    </form>
 </section>

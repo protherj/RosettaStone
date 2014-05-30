@@ -23,9 +23,8 @@ namespace Controllers
 
         private readonly IMerchelloContext _merchelloContext;
 
-        // These would normally be passed in or looked up so that there is not a 
+        // TODO These would normally be passed in or looked up so that there is not a 
         // hard coded reference
-// TODO
         private const int BasketContentId = 1062;
         private const int PaymentContentId = 1074;
 
@@ -101,7 +100,7 @@ namespace Controllers
         }
 
         /// <summary>
-        /// Responsible updating the quantities of items in the basket
+        /// Responsible for updating the quantities of items in the basket
         /// </summary>
         /// <param name="model"><see cref="BasketViewModel"/></param>
         /// <returns>Redirects to the current Umbraco page (the basket page)</returns>
@@ -146,19 +145,15 @@ namespace Controllers
             // -- This was done so that we did not have to throw an error since the Master variant is no
             // -- longer valid for sale.
             if (model.OptionChoices != null && model.OptionChoices.Any())
-            {
-                
+            {              
                 var variant = _merchelloContext.Services.ProductVariantService.GetProductVariantWithAttributes(product, model.OptionChoices);
-                
-
-                
                 _basket.AddItem(variant, variant.Name, 1, extendedData);
             }
             else
             {
-         
                 _basket.AddItem(product, product.Name, 1, extendedData);
             }
+
             _basket.Save();
 
             return RedirectToUmbracoPage(BasketContentId);
@@ -166,7 +161,7 @@ namespace Controllers
 
 
         /// <summary>
-        /// Removes an item from thet basket
+        /// Removes an item from the basket
         /// </summary>        
         [HttpGet]
         public ActionResult RemoveItemFromBasket(Guid lineItemKey)
@@ -188,15 +183,5 @@ namespace Controllers
             return RedirectToUmbracoPage(BasketContentId);
         }
 
-
-        private IPublishedContent Home
-        {
-            get { return _home ?? (_home = Umbraco.TypedContent(UmbracoContext.PageId).AncestorOrSelf(1)); }
-        }
-
-        private IPublishedContent BasketPage
-        {
-            get { return _basketPage ?? (_basketPage = Umbraco.TypedContent(_home.GetPropertyValue<int>("cartPage"))); }
-        }
     }
 }
