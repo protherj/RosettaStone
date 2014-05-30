@@ -8,33 +8,40 @@
 
 
 <!-- There is some very basic developer(non designer)-written CSS in rosettastonestyles.css that will make this menu horizontal -->
-<section id="navigation_partial">
+<nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">        
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <!-- start with a link to the home page -->
+                <a  class="navbar-brand" href="@home.Url">@home.Name</a>
+            </div>
 
-    <p class="documentation"><strong>Navigation.cshtml (partial view)</strong><br />
-    This menu is dynamically created based on the root pages in your site, and the number of items in your basket.</p>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    
+                <!-- in the razor code here, we iterate through each child of the home page that is set to "visible" -->
+                <!-- we also access a helper function which we called LinkLooker, see below for details -->
+                @{
+                    foreach(var page in home.Children.Where("Visible"))
+                    {
+                        @LinkLooker(home, page)
+                    }
+                }
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        
+        </div>
+    <!-- /.container -->
 
-    <ul id="nav">
+    </nav>
 
-        <!-- start with a link to the home page -->
-        <li><a href="@home.Url">@home.Name</a></li>
-
-        <!-- in the razor code here, we iterate through each child of the home page that is set to "visible" -->
-        <!-- we also access a helper function which we called LinkLooker, see below for details -->
-        @{
-            foreach(var page in home.Children.Where("Visible"))
-            {
-                @LinkLooker(home, page)
-            }
-        }
-
-    </ul>
-
-
-
-
-
-
-</section>
 
 
 <!-- The helper function "LinkLooker" below takes the home page and current page as parameters, and returns a hyperlinked bullet <li> item. -->
