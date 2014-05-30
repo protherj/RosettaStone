@@ -6,7 +6,7 @@
 <section id="list_categories">
     
     <p class="documentation"><strong>RosettaListOfCategories.cshtml (view)</strong><br />
-    This view iterates through each category you've entered in Merchello back office and puts them in a list.</p>
+        This view iterates through each category you've entered in Merchello back office and puts them in a list.</p>
  
     <div class="content">
         <p>Loop through your categories and do something exciting with them, like... make a list of bean links:</p>
@@ -15,25 +15,32 @@
 
     @if (CurrentPage.Children.Any())
     {
-        <ul>
+          <div class="row text-center">
+              
             <!-- And here they are, each child page of the current page as a list. Pretty basic. -->
             @foreach (IPublishedContent category in CurrentPage.Children.Where("Visible"))
             {
-            
-                <li class="category">
-                    <!-- Category image is one of the Umbraco content-picker properties we assigned to the Category's document type. -->
-                    <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
-                    @if (category.HasProperty("categoryImage") && category.HasValue("categoryImage"))
-                    {
-                        IPublishedContent image = Umbraco.Media(category.GetPropertyValue("categoryImage"));
-                        <img src="@image.Url" alt="@image.Name" class="productimage" />
-                    }
 
-                    <a href="@category.Url"><h2>@category.Name</h2></a>
-
-                </li>
+                <div class="col-lg-4 col-md-6 hero-feature">
+                    <a href="@category.Url">
+                    <div class="thumbnail">
+                        <!-- Category image is one of the Umbraco content-picker properties we assigned to the Category's document type. -->
+                        <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
+                        @if (category.HasProperty("categoryImage") && category.HasValue("categoryImage"))
+                        {
+                            IPublishedContent image = Umbraco.Media(category.GetPropertyValue("categoryImage"));
+                            <img src="@image.Url" alt="@image.Name" class="productimage" />
+                        }
+                        
+                        <div class="caption">
+                            <h2>@category.Name</h2>
+                        </div>
+                    </div>
+                    </a>
+                </div>
             }
-        </ul>
+          </div>
+        
     }
 
     
@@ -49,3 +56,10 @@
         <p>And voila, an easy and social acceptable e-commerce data structure: Catalog > Categories > Products.</p>
     </div>
 </section>
+
+@section ViewList
+{
+
+    @RosettaHelper.GetViewBoxHtml("RosettaListOfCategories.cshtml","This view iterates through each category you've entered in Merchello back office and puts them in a list.")
+
+}
