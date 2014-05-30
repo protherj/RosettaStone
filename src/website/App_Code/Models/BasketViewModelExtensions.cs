@@ -2,7 +2,7 @@
 using Merchello.Core.Models;
 using Merchello.Web.Workflow;
 
-namespace Models
+namespace Site.Models
 {
     /// <summary>
     /// 

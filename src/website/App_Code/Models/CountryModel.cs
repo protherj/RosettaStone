@@ -1,4 +1,4 @@
-﻿namespace Models
+﻿namespace Site.Models
 {
     public class CountryModel
     {

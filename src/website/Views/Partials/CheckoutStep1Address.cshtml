@@ -1,0 +1,20 @@
+@inherits Merchello.Web.Mvc.MerchelloViewPage<AddressModel>
+@using Merchello.Web
+@using Site.Models
+@using Site.Controllers
+
+@using (Html.BeginUmbracoForm<CheckoutController>(""))
+{
+
+    <fieldset>
+        <label>
+            @Html.ValidationMessageFor(x => x.Address1)
+            @Html.TextBoxFor(x => x.Address1)
+        </label>
+
+
+
+    </fieldset>
+
+    
+}
