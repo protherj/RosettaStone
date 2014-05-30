@@ -7,21 +7,17 @@ using Merchello.Core.Models;
 using Merchello.Web;
 using Merchello.Web.Models.ContentEditing;
 using Merchello.Web.Workflow;
-using Models;
 using Site.Models;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
-namespace Controllers
+namespace Site.Controllers
 {
     [PluginController("Site")]
-    public class BasketController : SurfaceController
+    public class BasketController : SiteContollerBase
     {
-        private IBasket _basket;
-
-        private readonly IMerchelloContext _merchelloContext;
 
         // TODO These would normally be passed in or looked up so that there is not a 
         // hard coded reference
@@ -35,31 +31,8 @@ namespace Controllers
              : this(MerchelloContext.Current)
          {}
 
-        public BasketController(IMerchelloContext merchelloContext)
-        {
-            if (merchelloContext == null)
-            {
-                var ex = new ArgumentNullException("merchelloContext");
-                LogHelper.Error<BasketController>("The MerchelloContext was null upon instantiating the CartController.", ex);
-                throw ex;
-            }
-
-            _merchelloContext = merchelloContext;
-
-            var customerContext = new CustomerContext(UmbracoContext);
-            var currentCustomer = customerContext.CurrentCustomer;
-
-            _basket = currentCustomer.Basket();
-        }
-
-        private void Initialize()
-        {
-            var customerContext = new CustomerContext(UmbracoContext);
-            var currentCustomer = customerContext.CurrentCustomer;
-
-            _basket = currentCustomer.Basket();
-
-        }
+        public BasketController(IMerchelloContext merchelloContext) : base(merchelloContext)
+         {}
 
         /// <summary>
         /// Renders the basket on the page
@@ -71,7 +44,7 @@ namespace Controllers
             // ToBasketViewModel is an extension that
             // translates the IBasket to a local view model which
             // can be submitted via a form.
-            return PartialView("RosettaBasket", _basket.ToBasketViewModel());
+            return PartialView("RosettaBasket", Basket.ToBasketViewModel());
         }
 
         /// <summary>
@@ -112,15 +85,15 @@ namespace Controllers
                 // The only thing that can be updated in this basket is the quantity
                 foreach (var item in model.Items)
                 {
-                    if(_basket.Items.First(x => x.Key == item.Key).Quantity != item.Quantity) 
-                        _basket.UpdateQuantity(item.Key, item.Quantity);
+                    if(Basket.Items.First(x => x.Key == item.Key).Quantity != item.Quantity) 
+                        Basket.UpdateQuantity(item.Key, item.Quantity);
                 }
 
                 // * Tidbit - Everytime "Save()" is called on the Basket, a new VersionKey (Guid) is generated.
                 // *** This is used to validate the CheckoutPreparationBase (BasketCheckoutPrepartion in this case),
                 // *** asserting that any previously saved information (rate quotes, shipments ...) correspond to the Basket version.
                 // *** If the versions do not match, the CheckoutPreparation 
-                _basket.Save();
+                Basket.Save();
             }
 
 
@@ -138,7 +111,7 @@ namespace Controllers
             var extendedData = new ExtendedDataCollection();
             extendedData.SetValue("umbracoContentId", model.ContentId.ToString(CultureInfo.InvariantCulture));
             
-            var product = _merchelloContext.Services.ProductService.GetByKey(model.ProductKey);
+            var product = Services.ProductService.GetByKey(model.ProductKey);
 
             // In the event the product has options we want to add the "variant" to the basket.
             // -- If a product that has variants is defined, the FIRST variant will be added to the cart. 
@@ -146,15 +119,15 @@ namespace Controllers
             // -- longer valid for sale.
             if (model.OptionChoices != null && model.OptionChoices.Any())
             {              
-                var variant = _merchelloContext.Services.ProductVariantService.GetProductVariantWithAttributes(product, model.OptionChoices);
-                _basket.AddItem(variant, variant.Name, 1, extendedData);
+                var variant = Services.ProductVariantService.GetProductVariantWithAttributes(product, model.OptionChoices);
+                Basket.AddItem(variant, variant.Name, 1, extendedData);
             }
             else
             {
-                _basket.AddItem(product, product.Name, 1, extendedData);
+                Basket.AddItem(product, product.Name, 1, extendedData);
             }
 
-            _basket.Save();
+            Basket.Save();
 
             return RedirectToUmbracoPage(BasketContentId);
         }
@@ -166,7 +139,7 @@ namespace Controllers
         [HttpGet]
         public ActionResult RemoveItemFromBasket(Guid lineItemKey)
         {
-            if (_basket.Items.FirstOrDefault(x => x.Key == lineItemKey) == null)
+            if (Basket.Items.FirstOrDefault(x => x.Key == lineItemKey) == null)
             {
                 var exception =
                     new InvalidOperationException(
@@ -177,8 +150,8 @@ namespace Controllers
             }
 
             // remove the item by it's pk.  
-            _basket.RemoveItem(lineItemKey);
-            _basket.Save();
+            Basket.RemoveItem(lineItemKey);
+            Basket.Save();
 
             return RedirectToUmbracoPage(BasketContentId);
         }

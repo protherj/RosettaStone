@@ -18,7 +18,7 @@
     }
 
     <ul>
-        <li><a href="/checkout/checkout-1-shipping-address/">Step 1: Shipping Address</a></li>
+        <li>@MakeLink("Step 1: Shipping Address", "/checkout/checkout-1-shipping-address/")</li>
         <li>Step 2: Shipping Quotes</li>
         <li>Step 3: Select Payment Method</li>
         <li>Step 4: Confirmation and Invoice</li>
@@ -26,3 +26,16 @@
     </ul>
 
 </section>
+
+@helper MakeLink(string title, string url){
+    if (CurrentCustomer.Basket().IsEmpty)
+    {
+        @title
+    }
+    else
+    {
+        <a href="@url">@title</a>
+    }
+
+
+}
