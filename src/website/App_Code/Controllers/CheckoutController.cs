@@ -10,7 +10,9 @@ using System.Web.Mvc;
 
 namespace Controllers
 {
-
+    /// <summary>
+    /// SurfaceController responsible for checkout workflow
+    /// </summary>
     [PluginController("RosettaStone")]
     public class CheckoutController : MerchelloSurfaceContoller
     {
