@@ -1,4 +1,4 @@
-/*! umbraco - v7.1.2 - 2014-05-09
+/*! umbraco - v7.1.4 - 2014-05-28
  * https://github.com/umbraco/umbraco-cms/
  * Copyright (c) 2014 Umbraco HQ;
  * Licensed MIT
@@ -636,9 +636,8 @@ angular.module('umbraco.services')
          * @methodOf umbraco.services.assetsService
          *
          * @description
-         * Injects a collection of files, this can be a mixed collection of css and js files, the loader will determine how to load them
+         * Injects a collection of files, this can be ONLY js files
          * 
-         * **Warning:** if the collection of files contains a .css file, you will in some cases not receive a resolved promise, it is therefore prefered to use the individual loadCss and loadJs methods
          *
          * @param {Array} pathArray string array of paths to the files to load
          * @param {Scope} scope optional scope to pass into the loader
@@ -1151,11 +1150,11 @@ function cropperHelper(umbRequestHelper, $http) {
 			crop.x2 = x2_px / image.width;
 			crop.y2 = y2_px / image.height;
 
-			_.forEach(crop, function(coord){
-				if(coord < 0){
-					coord = 0;
+			for(var coord in crop){
+				if(crop[coord] < 0){
+				    crop[coord] = 0;
 				}
-			});
+			} 
 
 			return crop;
 		},
@@ -1240,479 +1239,494 @@ angular.module('umbraco.services').factory('cropperHelper', cropperHelper);
 angular.module('umbraco.services')
 .factory('dialogService', function ($rootScope, $compile, $http, $timeout, $q, $templateCache, appState, eventsService) {
 
-       var dialogs = [];
-       
-       /** Internal method that removes all dialogs */
-       function removeAllDialogs(args) {
-           for (var i = 0; i < dialogs.length; i++) {
-               var dialog = dialogs[i];
-               dialog.close(args);
-               dialogs.splice(i, 1);
-           }
-       }
+    var dialogs = [];
 
-       /** Internal method that handles opening all dialogs */
-       function openDialog(options) {
-           var defaults = {
-              container: $("body"),
-              animation: "fade",
-              modalClass: "umb-modal",
-              width: "100%",
-              inline: false,
-              iframe: false,
-              show: true,
-              template: "views/common/notfound.html",
-              callback: undefined,
-              closeCallback: undefined,
-              element: undefined,
-              //this allows us to pass in data to the dialog if required which can be used to configure the dialog
-              //and re-use it for different purposes. It will set on to the $scope.dialogData if it is defined.
-              dialogData: undefined
-           };
-           
-           var dialog = angular.extend(defaults, options);
-           var scope = options.scope || $rootScope.$new();
-           
-           //Modal dom obj and unique id
-           dialog.element = $('<div ng-swipe-right="swipeHide($event)"  data-backdrop="false"></div>');
-           var id = dialog.template.replace('.html', '').replace('.aspx', '').replace(/[\/|\.|:\&\?\=]/g, "-") + '-' + scope.$id;
+    /** Internal method that removes all dialogs */
+    function removeAllDialogs(args) {
+        for (var i = 0; i < dialogs.length; i++) {
+            var dialog = dialogs[i];
+            dialog.close(args);
+        }
+    }
 
-           if (options.inline) {
-               dialog.animation = "";
-           }
-           else {
-               dialog.element.addClass("modal");
-               dialog.element.addClass("hide");
-           }
+    /** Internal method that closes the dialog properly and cleans up resources */
+    function closeDialog(dialog) {
 
-           //set the id and add classes
-           dialog.element
-               .attr('id', id)
-               .addClass(dialog.animation)
-               .addClass(dialog.modalClass);
+        if (dialog.element) {
+            dialog.element.modal('hide');
 
-           //push the modal into the global modal collection
-           //we halt the .push because a link click will trigger a closeAll right away
-           $timeout(function () {
-               dialogs.push(dialog);
-           }, 500);
-           
-
-           dialog.close = function(data) {
-              if (dialog.closeCallback) {
-                   dialog.closeCallback(data);
-              }
-
-              if(dialog.element){
-                 dialog.element.modal('hide');
-
-                 //this is not entirely enough since the damn
-                 //webforms scriploader still complains
-                 if(dialog.iframe){
-                    dialog.element.find("iframe").attr("src", "about:blank");
-                    $timeout(function(){
-                      dialog.element.remove();
-                    }, 1000); 
-                 }else{
+            //this is not entirely enough since the damn webforms scriploader still complains
+            if (dialog.iframe) {
+                dialog.element.find("iframe").attr("src", "about:blank");
+                $timeout(function () {
+                    //we need to do more than just remove the element, this will not destroy the 
+                    // scope in angular 1.1x, in angular 1.2x this is taken care of but if we dont
+                    // take care of this ourselves we have memory leaks.
                     dialog.element.remove();
-                 }
-               }
-           };
+                    //SD: No idea why this is required but was there before - pretty sure it's not required
+                    $("#" + dialog.element.attr("id")).remove();
+                    dialog.scope.$destroy();
+                }, 1000);
+            } else {
+                //we need to do more than just remove the element, this will not destroy the 
+                // scope in angular 1.1x, in angular 1.2x this is taken care of but if we dont
+                // take care of this ourselves we have memory leaks.
+                dialog.element.remove();
+                //SD: No idea why this is required but was there before - pretty sure it's not required
+                $("#" + dialog.element.attr("id")).remove();
+                dialog.scope.$destroy();
+            }
+        }
 
-           //if iframe is enabled, inject that instead of a template
-           if (dialog.iframe) {
-               var html = $("<iframe src='" + dialog.template + "' class='auto-expand' style='border: none; width: 100%; height: 100%;'></iframe>");
-               dialog.element.html(html);
-  
-               //append to body or whatever element is passed in as options.containerElement
-               dialog.container.append(dialog.element);
+        //remove 'this' dialog from the dialogs array
+        dialogs = _.reject(dialogs, function (i) { return i === dialog; });
+    }
 
-               // Compile modal content
-               $timeout(function () {
-                   $compile(dialog.element)(dialog.scope);
-               });
+    /** Internal method that handles opening all dialogs */
+    function openDialog(options) {
+        var defaults = {
+            container: $("body"),
+            animation: "fade",
+            modalClass: "umb-modal",
+            width: "100%",
+            inline: false,
+            iframe: false,
+            show: true,
+            template: "views/common/notfound.html",
+            callback: undefined,
+            closeCallback: undefined,
+            element: undefined,          
+            // It will set this value as a property on the dialog controller's scope as dialogData,
+            // used to pass in custom data to the dialog controller's $scope. Though this is near identical to 
+            // the dialogOptions property that is also set the the dialog controller's $scope object. 
+            // So there's basically 2 ways of doing the same thing which we're now stuck with and in fact
+            // dialogData has another specially attached property called .selection which gets used.
+            dialogData: undefined
+        };
 
-               dialog.element.css("width", dialog.width);
+        var dialog = angular.extend(defaults, options);
+        
+        //NOTE: People should NOT pass in a scope object that is legacy functoinality and causes problems. We will ALWAYS
+        // destroy the scope when the dialog is closed regardless if it is in use elsewhere which is why it shouldn't be done.
+        var scope = options.scope || $rootScope.$new();
 
-               //Autoshow 
-               if (dialog.show) {
-                   dialog.element.modal('show');
-               }
+        //Modal dom obj and unique id
+        dialog.element = $('<div ng-swipe-right="swipeHide($event)"  data-backdrop="false"></div>');
+        var id = dialog.template.replace('.html', '').replace('.aspx', '').replace(/[\/|\.|:\&\?\=]/g, "-") + '-' + scope.$id;
 
-               dialog.scope = scope;
-               return dialog;
-           }
-           else {
-               
-             //We need to load the template with an httpget and once it's loaded we'll compile and assign the result to the container
-             // object. However since the result could be a promise or just data we need to use a $q.when. We still need to return the 
-             // $modal object so we'll actually return the modal object synchronously without waiting for the promise. Otherwise this openDialog
-             // method will always need to return a promise which gets nasty because of promises in promises plus the result just needs a reference
-             // to the $modal object which will not change (only it's contents will change).
-             $q.when($templateCache.get(dialog.template) || $http.get(dialog.template, { cache: true }).then(function(res) { return res.data; }))
-                 .then(function onSuccess(template) {
+        if (options.inline) {
+            dialog.animation = "";
+        }
+        else {
+            dialog.element.addClass("modal");
+            dialog.element.addClass("hide");
+        }
 
-                     // Build modal object
-                     dialog.element.html(template);
+        //set the id and add classes
+        dialog.element
+            .attr('id', id)
+            .addClass(dialog.animation)
+            .addClass(dialog.modalClass);
 
-                     //append to body or other container element  
-                     dialog.container.append(dialog.element);
-                     
-                     // Compile modal content
-                     $timeout(function() {
-                         $compile(dialog.element)(scope);
-                     });
+        //push the modal into the global modal collection
+        //we halt the .push because a link click will trigger a closeAll right away
+        $timeout(function () {
+            dialogs.push(dialog);
+        }, 500);
 
-                     scope.dialogOptions = dialog;
-                     
-                     //Scope to handle data from the modal form
-                     scope.dialogData = dialog.dialogData ? dialog.dialogData : {};
-                     scope.dialogData.selection = [];
 
-                     // Provide scope display functions
-                     //this passes the modal to the current scope
-                     scope.$modal = function(name) {
-                         dialog.element.modal(name);
-                     };
+        dialog.close = function (data) {
+            if (dialog.closeCallback) {
+                dialog.closeCallback(data);
+            }
 
-                     scope.swipeHide = function(e){
-                       if(appState.getGlobalState("touchDevice")){
+            closeDialog(dialog);
+        };
+
+        //if iframe is enabled, inject that instead of a template
+        if (dialog.iframe) {
+            var html = $("<iframe src='" + dialog.template + "' class='auto-expand' style='border: none; width: 100%; height: 100%;'></iframe>");
+            dialog.element.html(html);
+
+            //append to body or whatever element is passed in as options.containerElement
+            dialog.container.append(dialog.element);
+
+            // Compile modal content
+            $timeout(function () {
+                $compile(dialog.element)(dialog.scope);
+            });
+
+            dialog.element.css("width", dialog.width);
+
+            //Autoshow 
+            if (dialog.show) {
+                dialog.element.modal('show');
+            }
+
+            dialog.scope = scope;
+            return dialog;
+        }
+        else {
+
+            //We need to load the template with an httpget and once it's loaded we'll compile and assign the result to the container
+            // object. However since the result could be a promise or just data we need to use a $q.when. We still need to return the 
+            // $modal object so we'll actually return the modal object synchronously without waiting for the promise. Otherwise this openDialog
+            // method will always need to return a promise which gets nasty because of promises in promises plus the result just needs a reference
+            // to the $modal object which will not change (only it's contents will change).
+            $q.when($templateCache.get(dialog.template) || $http.get(dialog.template, { cache: true }).then(function (res) { return res.data; }))
+                .then(function onSuccess(template) {
+
+                    // Build modal object
+                    dialog.element.html(template);
+
+                    //append to body or other container element  
+                    dialog.container.append(dialog.element);
+
+                    // Compile modal content
+                    $timeout(function () {
+                        $compile(dialog.element)(scope);
+                    });
+
+                    scope.dialogOptions = dialog;
+
+                    //Scope to handle data from the modal form
+                    scope.dialogData = dialog.dialogData ? dialog.dialogData : {};
+                    scope.dialogData.selection = [];
+
+                    // Provide scope display functions
+                    //this passes the modal to the current scope
+                    scope.$modal = function (name) {
+                        dialog.element.modal(name);
+                    };
+
+                    scope.swipeHide = function (e) {
+                        if (appState.getGlobalState("touchDevice")) {
                             var selection = window.getSelection();
-                            if(selection.type !== "Range"){
-                              scope.hide();  
+                            if (selection.type !== "Range") {
+                                scope.hide();
                             }
                         }
-                     };
+                    };
 
-                     scope.hide = function() {
-                         dialog.element.modal('hide');
+                    //NOTE: Same as 'close' without the callbacks
+                    scope.hide = function () {
+                        closeDialog(dialog);
+                    };
 
-                         dialog.element.remove();
-                         $("#" + dialog.element.attr("id")).remove();
-                     };
+                    //basic events for submitting and closing
+                    scope.submit = function (data) {
+                        if (dialog.callback) {
+                            dialog.callback(data);
+                        }
 
-                     //basic events for submitting and closing
-                     scope.submit = function(data) {
-                         if (dialog.callback) {
-                             dialog.callback(data);
-                         }
+                        closeDialog(dialog);
+                    };
 
-                         dialog.element.modal('hide');
-                         dialog.element.remove();
-                         $("#" + dialog.element.attr("id")).remove();
-                     };
-
-                     scope.close = function(data) {
+                    scope.close = function (data) {
                         dialog.close(data);
-                     };
+                    };
+                    
+                    //NOTE: This can ONLY ever be used to show the dialog if dialog.show is false (autoshow). 
+                    // You CANNOT call show() after you call hide(). hide = close, they are the same thing and once
+                    // a dialog is closed it's resources are disposed of.
+                    scope.show = function () {
+                        dialog.element.modal('show');
+                    };
 
-                     scope.show = function() {
-                         dialog.element.modal('show');
-                     };
-
-                     scope.select = function(item) {
+                    scope.select = function (item) {
                         var i = scope.dialogData.selection.indexOf(item);
-                         if (i < 0) {
-                             scope.dialogData.selection.push(item);
-                         }else{
+                        if (i < 0) {
+                            scope.dialogData.selection.push(item);
+                        } else {
                             scope.dialogData.selection.splice(i, 1);
-                         }
-                     };
+                        }
+                    };
 
-                     scope.dismiss = scope.hide;
+                    //NOTE: Same as 'close' without the callbacks
+                    scope.dismiss = scope.hide;
 
-                     // Emit modal events
-                     angular.forEach(['show', 'shown', 'hide', 'hidden'], function(name) {
-                         dialog.element.on(name, function(ev) {
-                             scope.$emit('modal-' + name, ev);
-                         });
-                     });
+                    // Emit modal events
+                    angular.forEach(['show', 'shown', 'hide', 'hidden'], function (name) {
+                        dialog.element.on(name, function (ev) {
+                            scope.$emit('modal-' + name, ev);
+                        });
+                    });
 
-                     // Support autofocus attribute
-                     dialog.element.on('shown', function(event) {
-                         $('input[autofocus]', dialog.element).first().trigger('focus');
-                     });
+                    // Support autofocus attribute
+                    dialog.element.on('shown', function (event) {
+                        $('input[autofocus]', dialog.element).first().trigger('focus');
+                    });
 
-                     //Autoshow 
-                     if (dialog.show) {
-                         dialog.element.modal('show');
-                     }
+                    //Autoshow 
+                    if (dialog.show) {
+                        dialog.element.modal('show');
+                    }
 
-                     dialog.scope = scope;
-               });
-               
-               //Return the modal object outside of the promise!
-               return dialog;
-           }
-       }
+                    dialog.scope = scope;
+                });
 
-       /** Handles the closeDialogs event */
-       eventsService.on("app.closeDialogs", function (evt, args) {
-           removeAllDialogs(args);
-       });
+            //Return the modal object outside of the promise!
+            return dialog;
+        }
+    }
 
-       return {
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#open
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a modal rendering a given template url.
-            *
-            * @param {Object} options rendering options
-            * @param {DomElement} options.container the DOM element to inject the modal into, by default set to body
-            * @param {Function} options.callback function called when the modal is submitted
-            * @param {String} options.template the url of the template
-            * @param {String} options.animation animation csss class, by default set to "fade"
-            * @param {String} options.modalClass modal css class, by default "umb-modal"
-            * @param {Bool} options.show show the modal instantly
-            * @param {Object} options.scope scope to attach the modal to, by default rootScope.new()
-            * @param {Bool} options.iframe load template in an iframe, only needed for serverside templates
-            * @param {Int} options.width set a width on the modal, only needed for iframes
-            * @param {Bool} options.inline strips the modal from any animation and wrappers, used when you want to inject a dialog into an existing container
-            * @returns {Object} modal object
-            */
-           open: function (options) {               
-               return openDialog(options);
-           },
-           
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#close
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Closes a specific dialog
-            * @param {Object} dialog the dialog object to close
-            * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
-            */
-           close: function (dialog, args) {
-              if(dialog){
-                  dialog.close(args);
-              }              
-           },
-           
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#closeAll
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Closes all dialogs
-            * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
-            */
-           closeAll: function(args) {
-               removeAllDialogs(args);
-           },
+    /** Handles the closeDialogs event */
+    eventsService.on("app.closeDialogs", function (evt, args) {
+        removeAllDialogs(args);
+    });
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#mediaPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a media picker in a modal, the callback returns an array of selected media items
-            * @param {Object} options mediapicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Boolean} options.onlyImages Only display files that have an image file-extension
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           mediaPicker: function (options) {
+    return {
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#open
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a modal rendering a given template url.
+         *
+         * @param {Object} options rendering options
+         * @param {DomElement} options.container the DOM element to inject the modal into, by default set to body
+         * @param {Function} options.callback function called when the modal is submitted
+         * @param {String} options.template the url of the template
+         * @param {String} options.animation animation csss class, by default set to "fade"
+         * @param {String} options.modalClass modal css class, by default "umb-modal"
+         * @param {Bool} options.show show the modal instantly
+         * @param {Bool} options.iframe load template in an iframe, only needed for serverside templates
+         * @param {Int} options.width set a width on the modal, only needed for iframes
+         * @param {Bool} options.inline strips the modal from any animation and wrappers, used when you want to inject a dialog into an existing container
+         * @returns {Object} modal object
+         */
+        open: function (options) {
+            return openDialog(options);
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#close
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Closes a specific dialog
+         * @param {Object} dialog the dialog object to close
+         * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
+         */
+        close: function (dialog, args) {
+            if (dialog) {
+                dialog.close(args);
+            }
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#closeAll
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Closes all dialogs
+         * @param {Object} args if specified this object will be sent to any callbacks registered on the dialogs.
+         */
+        closeAll: function (args) {
+            removeAllDialogs(args);
+        },
+
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#mediaPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a media picker in a modal, the callback returns an array of selected media items
+         * @param {Object} options mediapicker dialog options object
+         * @param {Boolean} options.onlyImages Only display files that have an image file-extension
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        mediaPicker: function (options) {
             options.template = 'views/common/dialogs/mediaPicker.html';
             options.show = true;
             return openDialog(options);
-           },
+        },
 
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#contentPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a content picker tree in a modal, the callback returns an array of selected documents
-            * @param {Object} options content picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.multipicker should the picker return one or multiple items
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           contentPicker: function (options) {
-               options.template = 'views/common/dialogs/contentPicker.html';
-               options.show = true;
-              return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#contentPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a content picker tree in a modal, the callback returns an array of selected documents
+         * @param {Object} options content picker dialog options object
+         * @param {Boolean} options.multipicker should the picker return one or multiple items
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        contentPicker: function (options) {
+            options.template = 'views/common/dialogs/contentPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#linkPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a link picker tree in a modal, the callback returns a single link
-            * @param {Object} options content picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           linkPicker: function (options) {
-               options.template = 'views/common/dialogs/linkPicker.html';
-               options.show = true;
-              return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#linkPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a link picker tree in a modal, the callback returns a single link
+         * @param {Object} options content picker dialog options object
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        linkPicker: function (options) {
+            options.template = 'views/common/dialogs/linkPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#macroPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a mcaro picker in a modal, the callback returns a object representing the macro and it's parameters
-            * @param {Object} options macropicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           macroPicker: function (options) {
-                options.template = 'views/common/dialogs/insertmacro.html';
-                options.show = true;
-                options.modalClass = "span7 umb-modal";
-                return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#macroPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a mcaro picker in a modal, the callback returns a object representing the macro and it's parameters
+         * @param {Object} options macropicker dialog options object
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        macroPicker: function (options) {
+            options.template = 'views/common/dialogs/insertmacro.html';
+            options.show = true;
+            options.modalClass = "span7 umb-modal";
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#memberPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a member picker in a modal, the callback returns a object representing the selected member
-            * @param {Object} options member picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.multiPicker should the tree pick one or multiple members before returning
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           memberPicker: function (options) {
-               options.template = 'views/common/dialogs/memberPicker.html';
-               options.show = true;
-              return openDialog(options);
-           },
-           
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#memberGroupPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a member group picker in a modal, the callback returns a object representing the selected member
-            * @param {Object} options member group picker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.multiPicker should the tree pick one or multiple members before returning
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           memberGroupPicker: function (options) {
-               options.template = 'views/common/dialogs/memberGroupPicker.html';
-               options.show = true;
-               return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#memberPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a member picker in a modal, the callback returns a object representing the selected member
+         * @param {Object} options member picker dialog options object
+         * @param {Boolean} options.multiPicker should the tree pick one or multiple members before returning
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        memberPicker: function (options) {
+            options.template = 'views/common/dialogs/memberPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#iconPicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a icon picker in a modal, the callback returns a object representing the selected icon
-            * @param {Object} options iconpicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           iconPicker: function (options) {
-                options.template = 'views/common/dialogs/iconPicker.html';
-                options.show = true;
-                return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#memberGroupPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a member group picker in a modal, the callback returns a object representing the selected member
+         * @param {Object} options member group picker dialog options object
+         * @param {Boolean} options.multiPicker should the tree pick one or multiple members before returning
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        memberGroupPicker: function (options) {
+            options.template = 'views/common/dialogs/memberGroupPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#treePicker
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a tree picker in a modal, the callback returns a object representing the selected tree item
-            * @param {Object} options iconpicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {$scope} options.section tree section to display
-            * @param {$scope} options.treeAlias specific tree to display
-            * @param {$scope} options.multiPicker should the tree pick one or multiple items before returning
-            * @param {Function} options.callback callback function
-            * @returns {Object} modal object
-            */
-           treePicker: function (options) {
-                options.template = 'views/common/dialogs/treePicker.html';
-                options.show = true;
-                return openDialog(options);
-           },
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#iconPicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a icon picker in a modal, the callback returns a object representing the selected icon
+         * @param {Object} options iconpicker dialog options object
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        iconPicker: function (options) {
+            options.template = 'views/common/dialogs/iconPicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-           /**
-            * @ngdoc method
-            * @name umbraco.services.dialogService#propertyDialog
-            * @methodOf umbraco.services.dialogService
-            *
-            * @description
-            * Opens a dialog with a chosen property editor in, a value can be passed to the modal, and this value is returned in the callback
-            * @param {Object} options mediapicker dialog options object
-            * @param {$scope} options.scope dialog scope
-            * @param {Function} options.callback callback function
-            * @param {String} editor editor to use to edit a given value and return on callback
-            * @param {Object} value value sent to the property editor
-            * @returns {Object} modal object
-            */
-          propertyDialog: function (options) {
-              options.template = 'views/common/dialogs/property.html';
-              options.show = true;
-              return openDialog(options);
-          },
-           
-           /**
-           * @ngdoc method
-           * @name umbraco.services.dialogService#ysodDialog
-           * @methodOf umbraco.services.dialogService
-           * @description
-           * Opens a dialog to an embed dialog 
-           */
-          embedDialog: function (options) {
-              options.template = 'views/common/dialogs/rteembed.html';
-              options.show = true;
-              return openDialog(options);
-          },
-           /**
-           * @ngdoc method
-           * @name umbraco.services.dialogService#ysodDialog
-           * @methodOf umbraco.services.dialogService
-           *
-           * @description
-           * Opens a dialog to show a custom YSOD
-           */
-           ysodDialog: function (ysodError) {
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#treePicker
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a tree picker in a modal, the callback returns a object representing the selected tree item
+         * @param {Object} options iconpicker dialog options object
+         * @param {String} options.section tree section to display
+         * @param {String} options.treeAlias specific tree to display
+         * @param {Boolean} options.multiPicker should the tree pick one or multiple items before returning
+         * @param {Function} options.callback callback function
+         * @returns {Object} modal object
+         */
+        treePicker: function (options) {
+            options.template = 'views/common/dialogs/treePicker.html';
+            options.show = true;
+            return openDialog(options);
+        },
 
-               var newScope = $rootScope.$new();
-               newScope.error = ysodError;
-               return openDialog({
-                   modalClass: "umb-modal wide",
-                   scope: newScope,
-                   //callback: options.callback,
-                   template: 'views/common/dialogs/ysod.html',
-                   show: true
-               });
-           }
-       };
-   });
+        /**
+         * @ngdoc method
+         * @name umbraco.services.dialogService#propertyDialog
+         * @methodOf umbraco.services.dialogService
+         *
+         * @description
+         * Opens a dialog with a chosen property editor in, a value can be passed to the modal, and this value is returned in the callback
+         * @param {Object} options mediapicker dialog options object
+         * @param {Function} options.callback callback function
+         * @param {String} editor editor to use to edit a given value and return on callback
+         * @param {Object} value value sent to the property editor
+         * @returns {Object} modal object
+         */
+        propertyDialog: function (options) {
+            options.template = 'views/common/dialogs/property.html';
+            options.show = true;
+            return openDialog(options);
+        },
+
+        /**
+        * @ngdoc method
+        * @name umbraco.services.dialogService#ysodDialog
+        * @methodOf umbraco.services.dialogService
+        * @description
+        * Opens a dialog to an embed dialog 
+        */
+        embedDialog: function (options) {
+            options.template = 'views/common/dialogs/rteembed.html';
+            options.show = true;
+            return openDialog(options);
+        },
+        /**
+        * @ngdoc method
+        * @name umbraco.services.dialogService#ysodDialog
+        * @methodOf umbraco.services.dialogService
+        *
+        * @description
+        * Opens a dialog to show a custom YSOD
+        */
+        ysodDialog: function (ysodError) {
+
+            var newScope = $rootScope.$new();
+            newScope.error = ysodError;
+            return openDialog({
+                modalClass: "umb-modal wide",
+                scope: newScope,
+                //callback: options.callback,
+                template: 'views/common/dialogs/ysod.html',
+                show: true
+            });
+        }
+    };
+});
 /** Used to broadcast and listen for global events and allow the ability to add async listeners to the callbacks */
 
 /*
@@ -2151,18 +2165,25 @@ angular.module('umbraco.services')
  * </pre> 
  */
 angular.module('umbraco.services')
-.factory('historyService', function ($rootScope, $timeout, angularHelper) {
+.factory('historyService', function ($rootScope, $timeout, angularHelper, eventsService) {
 
 	var nArray = [];
 
 	function add(item) {
 
-		var any = _.where(nArray, {link: item.link});
+	    if (!item) {
+	        return null;
+	    }
 
-		if(any.length === 0){
-			nArray.splice(0,0,item);
-			return nArray[0];
-		}
+	    var listWithoutThisItem = _.reject(nArray, function(i) {
+	        return i.link === item.link;
+	    });
+
+        //put it at the top and reassign
+	    listWithoutThisItem.splice(0, 0, item);
+	    nArray = listWithoutThisItem;
+	    return nArray[0];
+
 	}
 
 	return {
@@ -2183,7 +2204,9 @@ angular.module('umbraco.services')
 		add: function (item) {
 			var icon = item.icon || "icon-file";
 			angularHelper.safeApply($rootScope, function () {
-				return add({name: item.name, icon: icon, link: item.link, time: new Date() });
+			    var result = add({ name: item.name, icon: icon, link: item.link, time: new Date() });
+			    eventsService.emit("historyService.add", {added: result, all: nArray});
+			    return result;
 			});
 		},
 		/**
@@ -2198,7 +2221,8 @@ angular.module('umbraco.services')
 		 */
 		remove: function (index) {
 			angularHelper.safeApply($rootScope, function() {
-				nArray.splice(index, 1);
+			    var result = nArray.splice(index, 1);
+			    eventsService.emit("historyService.remove", { removed: result, all: nArray });
 			});
 		},
 
@@ -2212,20 +2236,10 @@ angular.module('umbraco.services')
 		 */
 		removeAll: function () {
 			angularHelper.safeApply($rootScope, function() {
-				nArray = [];
+			    nArray = [];
+			    eventsService.emit("historyService.removeAll");
 			});
 		},
-
-		/**
-		 * @ngdoc property
-		 * @name umbraco.services.historyService#current
-		 * @propertyOf umbraco.services.historyService
-		 *
-		 * @description
-		 * 
-		 * @returns {Array} Array of history entries for the current user, newest items first
-		 */
-		current: nArray,
 
 		/**
 		 * @ngdoc method
@@ -3893,7 +3907,6 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
                             }
 
                             var dialog = self.showDialog({
-                                scope: args.scope,
                                 node: args.node,
                                 action: found,
                                 section: appState.getSectionState("currentSection")
@@ -4062,12 +4075,11 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
          * into #dialog div.umb-panel-body
          * the path to the dialog view is determined by: 
          * "views/" + current tree + "/" + action alias + ".html"
-         * The dialog controller will get passed a scope object that is created here. This scope
-         * object may be injected as part of the args object, if one is not found then a new scope
-         * is created. Regardless of whether a scope is created or re-used, a few properties and methods 
-         * will be added to it so that they can be used in any dialog controller:
+         * The dialog controller will get passed a scope object that is created here with the properties:
          *  scope.currentNode = the selected tree node
          *  scope.currentAction = the selected menu item
+         *  so that the dialog controllers can use these properties
+         * 
          * @param {Object} args arguments passed to the function
          * @param {Scope} args.scope current scope passed to the dialog
          * @param {Object} args.action the clicked action containing `name` and `alias`
@@ -4091,8 +4103,11 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
 
             setMode("dialog");
 
-            //set up the scope object and assign properties
-            var dialogScope = args.scope || $rootScope.$new();
+            //NOTE: Set up the scope object and assign properties, this is legacy functionality but we have to live with it now.
+            // we should be passing in currentNode and currentAction using 'dialogData' for the dialog, not attaching it to a scope.
+            // This scope instance will be destroyed by the dialog so it cannot be a scope that exists outside of the dialog.
+            // If a scope instance has been passed in, we'll have to create a child scope of it, otherwise a new root scope.
+            var dialogScope = args.scope ? args.scope.$new() : $rootScope.$new();
             dialogScope.currentNode = args.node;
             dialogScope.currentAction = args.action;
 
@@ -4150,14 +4165,19 @@ function navigationService($rootScope, $routeParams, $log, $location, $q, $timeo
             var dialog = dialogService.open(
                 {
                     container: $("#dialog div.umb-modalcolumn-body"),
+                    //The ONLY reason we're passing in scope to the dialogService (which is legacy functionality) is 
+                    // for backwards compatibility since many dialogs require $scope.currentNode or $scope.currentAction
+                    // to exist
                     scope: dialogScope,
-                    currentNode: args.node,
-                    currentAction: args.action,
                     inline: true,
                     show: true,
                     iframe: iframe,
                     modalClass: "umb-dialog",
-                    template: templateUrl
+                    template: templateUrl,
+
+                    //These will show up on the dialog controller's $scope under dialogOptions
+                    currentNode: args.node,
+                    currentAction: args.action,
                 });
 
             //save the currently assigned dialog so it can be removed before a new one is created
@@ -5140,7 +5160,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                 tooltip: 'Embed',
                 onclick: function () {
                     dialogService.embedDialog({
-                        scope: $scope, callback: function (data) {
+                        callback: function (data) {
                             editor.insertContent(data);
                         }
                     });
@@ -5159,7 +5179,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
         * @param {Object} editor the TinyMCE editor instance        
         * @param {Object} $scope the current controller scope
         */
-        createMediaPicker: function (editor, $scope) {
+        createMediaPicker: function (editor) {
             editor.addButton('umbmediapicker', {
                 icon: 'custom icon-picture',
                 tooltip: 'Media Picker',
@@ -5182,7 +5202,7 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                         currentTarget: currentTarget,
                         onlyImages: true,
                         showDetails: true,
-                        scope: $scope, callback: function (img) {
+                        callback: function (img) {
 
                             if (img) {
                                 
@@ -5216,49 +5236,6 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                     });
                 }
             });
-        },
-
-        /**
-        * @ngdoc method
-        * @name umbraco.services.tinyMceService#createLinkPicker
-        * @methodOf umbraco.services.tinyMceService
-        *
-        * @description
-        * Creates the umbrco insert link tinymce plugin
-        *
-        * @param {Object} editor the TinyMCE editor instance        
-        * @param {Object} $scope the current controller scope
-        */
-        createLinkPicker: function (editor, $scope) {
-
-            /*
-            editor.addButton('link', {
-                icon: 'custom icon-link',
-                tooltip: 'Link Picker',
-                onclick: function () {
-                    dialogService.linkPicker({
-                        scope: $scope, callback: function (link) {
-                            if (link) {
-                                var data = {
-                                    title: "Some description",
-                                    href: "",
-                                    id: '__mcenew'
-                                };
-
-                                editor.execCommand("mceInsertLink", false, {
-                                                href: "wat",
-                                                title: "muh",
-                                                target: null,
-                                                "class": null
-                                            });
-
-
-                                //editor.insertContent(editor.dom.createHTML('a', data));
-                           }
-                        }
-                    });
-                }
-            });*/
         },
 
         /**
@@ -5575,7 +5552,6 @@ function tinyMceService(dialogService, $log, imageHelper, $http, $timeout, macro
                     }
 
                     dialogService.macroPicker({
-                        scope: $scope,
                         dialogData : dialogData,
                         callback: function(data) {
 
@@ -7080,7 +7056,8 @@ function umbPhotoFolderHelper($compile, $log, $timeout, $filter, imageHelper, me
                 return { height: minDisplayHeight, imgCount: 1 };
             }
             else if (idealImages.length === idealImgPerRow && targetHeight < maxRowHeight) {
-                //if we're already dealing with the ideal images per row and it's not quite there, we can scale up a little bit so 
+
+                //if we're already dealing with the ideal images per row and it's not quite wide enough, we can scale up a little bit so 
                 // long as the targetHeight is currently less than the maxRowHeight. The scale up will be half-way between our current
                 // target height and the maxRowHeight (we won't loop forever though - if there's a difference of 5 px we'll just quit)
                 
@@ -7093,9 +7070,8 @@ function umbPhotoFolderHelper($compile, $log, $timeout, $filter, imageHelper, me
                     }
                 }
 
-                //Ok, we couldn't actually scale it up with the ideal row count (TBH I'm not sure that this would ever happen but we'll take it into account)
-                // we'll just recurse with another image count.
-                return this.getRowHeightForImages(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow + 1, margin);
+                //Ok, we couldn't actually scale it up with the ideal row count we'll just recurse with a lesser image count.
+                return this.getRowHeightForImages(imgs, maxRowHeight, minDisplayHeight, maxRowWidth, idealImgPerRow - 1, margin);
             }
             else {
                 //we have additional images so we'll recurse and add 1 to the idealImgPerRow until it fits
