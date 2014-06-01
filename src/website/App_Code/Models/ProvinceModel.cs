@@ -1,4 +1,4 @@
-﻿namespace Site.Models
+﻿namespace Models
 {
     public class ProvinceModel
     {

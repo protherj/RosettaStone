@@ -1,36 +1,31 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Web.Mvc;
 using Merchello.Core;
-using Merchello.Core.Models;
 using Merchello.Web;
-using Merchello.Web.Models.ContentEditing;
 using Merchello.Web.Workflow;
-using Site.Models;
 using Umbraco.Core.Logging;
-using Umbraco.Core.Models;
-using Umbraco.Web;
 using Umbraco.Web.Mvc;
 using Merchello.Core.Services;
 using Merchello.Core.Gateways.Shipping;
 
-
-namespace Site.Controllers
+namespace Controllers
 {
-    public abstract class SiteContollerBase : SurfaceController
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// Something like this will likely be included in the Merchello Core soon
+    /// </remarks>
+    public abstract class MerchelloSurfaceContoller : SurfaceController
     {
-
-        private IBasket _basket;
-
+        private readonly IBasket _basket;
         private readonly IMerchelloContext _merchelloContext;
         
-        protected SiteContollerBase(IMerchelloContext merchelloContext)
+        protected MerchelloSurfaceContoller(IMerchelloContext merchelloContext)
         {
             if (merchelloContext == null)
             {
                 var ex = new ArgumentNullException("merchelloContext");
-                LogHelper.Error<SiteContollerBase>("The MerchelloContext was null upon instantiating the CartController.", ex);
+                LogHelper.Error<MerchelloSurfaceContoller>("The MerchelloContext was null upon instantiating the CartController.", ex);
                 throw ex;
             }
 
@@ -42,16 +37,25 @@ namespace Site.Controllers
             _basket = currentCustomer.Basket();
         }
 
+        /// <summary>
+        /// Gets the Basket for the CurrentCustomer
+        /// </summary>
         protected IBasket Basket
         {
             get { return _basket; }
         }
 
-        protected IServiceContext Services
+        /// <summary>
+        /// We are going to hide the Umbraco Service Context here so controller that sub class this controller are "Merchello Surface Controllers"
+        /// </summary>
+        protected new IServiceContext Services
         {
             get { return _merchelloContext.Services; }
         }
 
+        /// <summary>
+        /// Exposes the Shipping Context
+        /// </summary>
         protected IShippingContext Shipping
         {
             get { return _merchelloContext.Gateways.Shipping; }

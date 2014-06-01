@@ -1,99 +1,102 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloViewPage<BasketViewModel>
-@using Site.Controllers
-@using Site.Models
+@using Controllers
+@using Models
+
+@{
+    const string continueShoppingUrl = "/catalog/";
+    const string checkoutStep1Url = "/checkout/checkout-1-shipping-address/";
+}
 
 
-<section id="basket_partial">
-
-    <p class="documentation"><strong>RosettaBasket.cshtml (partial view)</strong><br />
-    Optionally delete an item (click the x) or update the quantity. You can also click on a given product to go back to that page.</p>
+@(Model.Items.Any() ? RenderBasket(continueShoppingUrl, checkoutStep1Url) : RenderEmpty(continueShoppingUrl))
 
 
-    @(Model.Items.Any() ? RenderBasket() : RenderEmpty())
+@helper RenderEmpty(string continueShoppingUrl)
+{
+    <p><a href="@continueShoppingUrl">There's nothing in your shopping cart, start shopping!</a></p>
+}
 
 
-    @helper RenderEmpty()
-    {
-        <p><a href="/">There's nothing in your shopping cart, start shopping!</a></p>
-    }
-
-
-    @helper RenderBasket()
-    {
+@helper RenderBasket(string continueShoppingUrl, string checkoutStep1Url)
+{
     
-        // Renders an "Updatable" basket
+    // Renders an "Updatable" basket
     
-        using(Html.BeginUmbracoForm<BasketController>("UpdateBasket"))
-        {
-
-            <table class="cart">
-                <thead>
-                    <tr>
-            	        <th class="name">Product</th>
-            	        <th class="price">Price</th>
-            	        <th class="quantity">Quantity</th>
-            	        <th class="total">Total</th>
-            	        <th class="delete"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                @{
-                    // iterates through every line item in the basket.  A for loop is used here
-                    // so that MVC will properly create the references to the Quantity fields that
-                    // are posted back to the controller to be updated.
-                    for (var i = 0; i < Model.Items.Count(); i++)
-                    {
+    using(Html.BeginUmbracoForm<BasketController>("UpdateBasket"))
+    {
+        // In a real world implementation you could consider putting the column headers in
+        // an Umbraco Dictionary 
+        <table class="table">
+            <thead>
+                <tr>
+            	    <th class="name">Product</th>
+            	    <th class="price">Price</th>
+            	    <th class="quantity">Quantity</th>
+            	    <th class="total">Total</th>
+            	    <th class="delete">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+            @{
+                // iterates through every line item in the basket.  A for loop is used here
+                // so that MVC will properly create the references to the Quantity fields that
+                // are posted back to the controller to be updated.
+                for (var i = 0; i < Model.Items.Count(); i++)
+                {
                             
-                        // gets the associated Umbraco content.
-                        // ** This is accomplished through the umbracoContentId being injected into the line item extendedData
-                        // ** and provides an example of the sorts of things you can do per line item with custom extendedData values.
-                        var content = Model.Items[i].ContentId != 0 ? Umbraco.TypedContent(Model.Items[i].ContentId) : null;
+                    // gets the associated Umbraco content.
+                    // ** This is accomplished through the umbracoContentId being injected into the line item extendedData
+                    // ** and provides an example of the sorts of things you can do per line item with custom extendedData values.
+                    var content = Model.Items[i].ContentId != 0 ? Umbraco.TypedContent(Model.Items[i].ContentId) : null;
             
-                        <tr>
-                            <td class="image">
-                                @if (content == null)
-                                {
+                    <tr>
+                        <td class="image">
+                            @if (content == null)
+                            {
 		               
-		                            <span>@Model.Items[i].Name</span>
-                                }
-                                else
+		                        <span>@Model.Items[i].Name</span>
+                            }
+                            else
+                            {
+                                if (content.HasValue("productImage"))
                                 {
-                                    if (content.HasValue("productImage"))
-                                    {
-                                        var src = Umbraco.Media(content.GetPropertyValue("productImage")).Url;
-                                        <a href="@content.Url"><img src="@src" alt="@Model.Items[i].Name" width="20" /></a>
-                                    }
+                                    var src = Umbraco.Media(content.GetPropertyValue("productImage")).Url;
+                                    <a href="@content.Url"><img src="@src" alt="@Model.Items[i].Name" width="20" /></a>
+                                }
                           
                             
-                                    <a href="@content.Url"><span>@Model.Items[i].Name</span></a>
-                                }                               
-                                @Html.HiddenFor(model => model.Items[i].Key)                 
-                            </td>
-	                        <td class="price">@Model.Items[i].Price.ToString("C2")</td>
-                            <td class="quantity">@Html.TextBoxFor(model => model.Items[i].Quantity)</td>
-                            <td class="total">@((Model.Items[i].Price * Model.Items[i].Quantity).ToString("C2"))</td>
-                            <td class="delete">@Html.ActionLink("x", "RemoveItemFromBasket", "Basket", new {lineItemKey = Model.Items[i].Key}, null )</td>
-                        </tr>
-                    }
+                                <a href="@content.Url"><span>@Model.Items[i].Name</span></a>
+                            }                               
+                            @Html.HiddenFor(model => model.Items[i].Key)                 
+                        </td>
+	                    <td class="price">@Model.Items[i].UnitPrice.ToString("C2")</td>
+                        <td class="quantity">@Html.TextBoxFor(model => model.Items[i].Quantity, new { @class = "col-xs-2"})</td>
+                        <td class="total">@((Model.Items[i].TotalPrice).ToString("C2"))</td>
+                        <td class="delete">@Html.ActionLink("X", "RemoveItemFromBasket", "Basket", new {lineItemKey = Model.Items[i].Key}, new  { @class = "btn btn-danger"} )</td>
+                    </tr>
                 }
-                </tbody>
-            </table>
-    
-            <div class="subtotal">
-                <span class="label">Sub Total</span>
-		        <span class="amount">@Model.TotalPrice.ToString("C2")</span>
-            </div>         
+            }
+                <tr>
+                    <td colspan="3">Sub Total</td>
+                    <td colspan="2">@Model.TotalPrice.ToString("C2")</td>
+                </tr>
+            </tbody>
+        </table>       
 	
-            <div class="cart-buttons">
-	            <input type="submit" id="update-cart" name="update" value="Update" />
-
-                <!-- Note: This link is hard coded for our specific page name -->
-	            <a href="/checkout/checkout-1-shipping-address/" class="button">Checkout</a>
+        <div class="row">
+                
+            <div class="col-lg-8">
+            <a href="@continueShoppingUrl">Continue Shopping</a>
             </div>
-    
-	        <a href="/">Continue Shopping</a>
-        }
-    
-    }
+            <div  class="col-lg-4 text-right">
+                        <input type="submit" id="update-cart" class="btn btn-default" name="update" value="Update" />
 
-</section>
+            <!-- Note: This link is hard coded for our specific page name -->
+                <a href="@checkoutStep1Url" class="btn btn-primary">Checkout</a>
+            </div>
+        </div>
+    
+	        
+    }
+    
+}

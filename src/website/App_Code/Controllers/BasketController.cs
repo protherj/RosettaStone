@@ -4,19 +4,16 @@ using System.Linq;
 using System.Web.Mvc;
 using Merchello.Core;
 using Merchello.Core.Models;
-using Merchello.Web;
 using Merchello.Web.Models.ContentEditing;
-using Merchello.Web.Workflow;
-using Site.Models;
+using Models;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
-using Umbraco.Web;
 using Umbraco.Web.Mvc;
 
-namespace Site.Controllers
+namespace Controllers
 {
-    [PluginController("Site")]
-    public class BasketController : SiteContollerBase
+    [PluginController("RosettaStone")]
+    public class BasketController : MerchelloSurfaceContoller
     {
 
         // TODO These would normally be passed in or looked up so that there is not a 

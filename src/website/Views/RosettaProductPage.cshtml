@@ -1,27 +1,34 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
-@using Merchello.Web
 
 @{
     Layout = "RosettaBasePage.cshtml";
     var product = Merchello.Product(CurrentPage.merchelloProduct);
+    
 }
 
-<section id="display_product">
+<div class="container hero-spacer">
 
-    <p class="documentation"><strong>RosettaProductPage.cshtml (view)</strong><br />
-    This is the detail view of one product.</p>
+
     
     @if (CurrentPage.HasProperty("merchelloProduct") && CurrentPage.HasValue("merchelloProduct"))
     {
     
-        <!-- Product image is one of the Umbraco content-picker properties we created and assigned to the Product content's document type -->
-        if (CurrentPage.HasProperty("productImage") && CurrentPage.HasValue("productImage"))
-        {
-            IPublishedContent image = Umbraco.Media(CurrentPage.GetPropertyValue("productImage"));
-            <img src="@image.Url" alt="@image.Name" class="productimagedetail" />
-        }
-    
-        <!-- Note this important distinction: Sometimes we are accessing the Umbraco page content ("CurrentPage") -->
+        <div class="row">
+        
+            <div class="col-lg-8">
+                <h2>@product.Name</h2>
+                <div class="text-center">
+                <!-- Product image is one of the Umbraco content-picker properties we created and assigned to the Product content's document type -->
+                @if (CurrentPage.HasProperty("productImage") && CurrentPage.HasValue("productImage"))
+                {
+                    IPublishedContent image = Umbraco.Media(CurrentPage.GetPropertyValue("productImage"));
+                    <img src="@image.Url" alt="@HttpUtility.HtmlEncode(image.Name)" />
+                }
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+            <!-- Note this important distinction: Sometimes we are accessing the Umbraco page content ("CurrentPage") -->
         <!--   and sometimes we are accessing the linked Merchello variable "product" which is Merchello.Product(CurrentPage.merchelloProduct) -->
         <h3>@product.Name</h3>
         <p>@CurrentPage.productDescription</p>
@@ -30,20 +37,38 @@
         
         <!-- We're calling the RenderAddToCart action that can be found in BasketController.cs code. -->
         <!--    This action will take care of displaying options if needed and the 'Add To Cart' button (it recursively calls the "RosettaAddToCart.cshtml" partial view) -->
-        @Html.Action("RenderAddToCart", "Basket", new { area = "Site", product = product })
-     }
-
+        @Html.Action("RenderAddToCart", "Basket", new { area = "RosettaStone", product = product })
+            
+                </div>
+            </div>
+    }
     
-    <div class="content" style="clear:both;">
-        <p>How do you set up a new product in Merchello?</p>
-        <ul>
-            <li>Create your products in the Merchello catalog (Merchello button in the back office), and then create one Umbraco page for each product. </li>
-            <li>**If you are using product options, be sure to press "Update" to create multiple variants for your product. This allows you to individually manage price, inventory, etc.</li>
-            <li>If you want to categorize your products, organize your Umbraco product pages into Folders. See our view RosettaProductCategory.cshtml for reference.</li>
-            <li>Once you have a Merchello product and an Umbraco page for each item you want to sell, you link the two by making a field in your Umbraco "product page" document type called "MerchelloProduct." The data type should be "Merchello Product."</li>
-            <li>As you're editing the Umbraco content page, use your Merchello Product picker to select the corresponding Merchello item you've created.</li>
-            <li>That item is now linked up -- you have all the power of Umbraco's content management (images, HTML, you know the rest!) linked up to the e-commerce of Merchello.</li>
-        </ul>
+    <hr/>
+    <div class="row">
+        <div class="col-lg-12">
+            <h2>How do you set up a new product in Merchello?</h2> 
+                       
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+        
+            <ul>
+                <li>Create your products in the Merchello catalog (Merchello button in the back office), and then create one Umbraco page for each product. </li>
+                <li>**If you are using product options, be sure to press "Update" to create multiple variants for your product. This allows you to individually manage price, inventory, etc.</li>
+                <li>If you want to categorize your products, organize your Umbraco product pages into Folders. See our view RosettaProductCategory.cshtml for reference.</li>
+                <li>Once you have a Merchello product and an Umbraco page for each item you want to sell, you link the two by making a field in your Umbraco "product page" document type called "MerchelloProduct." The data type should be "Merchello Product."</li>
+                <li>As you're editing the Umbraco content page, use your Merchello Product picker to select the corresponding Merchello item you've created.</li>
+                <li>That item is now linked up -- you have all the power of Umbraco's content management (images, HTML, you know the rest!) linked up to the e-commerce of Merchello.</li>
+            </ul>
+    </div>
     </div>
      
-</section>
+</div>
+<hr/>
+
+@section ViewList
+{
+    @RosettaHelper.GetViewBoxHtml("RosettaProductPage.cshtml", "View responsible for rendering a detailed view of a Merchello Product.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage + " - specifically used to expose the MerchelloHelper object.  Referenced as <b>Merchello</b> in the razor", "Html.Action call to the BasketController (SurfaceController) to render the RosettaAddToCart Partial View" })
+}

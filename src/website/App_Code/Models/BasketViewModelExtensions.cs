@@ -2,7 +2,7 @@
 using Merchello.Core.Models;
 using Merchello.Web.Workflow;
 
-namespace Site.Models
+namespace Models
 {
     /// <summary>
     /// 
@@ -32,7 +32,8 @@ namespace Site.Models
                     ContentId = lineItem.ExtendedData.ContainsKey("umbracoContentId") ? int.Parse(lineItem.ExtendedData["umbracoContentId"]) : 0,
                     Name = lineItem.Name,
                     Sku = lineItem.Sku,
-                    Price = lineItem.Price,
+                    UnitPrice = lineItem.Price,
+                    TotalPrice = lineItem.TotalPrice,
                     Quantity = lineItem.Quantity
                 };
 

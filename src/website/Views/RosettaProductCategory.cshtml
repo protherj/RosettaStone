@@ -5,62 +5,65 @@
     Layout = "RosettaBasePage.cshtml";
 }
 
-<section id="display_category">
 
-    <p class="documentation"><strong>RosettaProductCategory.cshtml (view)</strong><br />
-    This view displays a list of all products within one category</p>
-    
-    <div class="content">
-        <p>Loop through and display all products in your chosen category.</p>
-    </div>
-
+<div class="row">
     <!-- This is a header for the category page/grouping we're looking at -->
     <h1>@CurrentPage.Name</h1>
-
+    
+  
     <!-- Loop through each product (Umbraco content item, technically, but because we're in a product category where every page = product it works the same) and make a list -->
-    <ul>
+  
     @foreach (IPublishedContent contentProduct in CurrentPage.Children.Where("Visible"))
     {
         <!-- Helper function "DisplayTheProduct" creates <li> display for each individual item -->
         @DisplayTheProduct(contentProduct)
     }   
-    </ul>
 
+</div>
+
+<hr/>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3>How does Merchello know which products are in our categories?</h3>
+        <p>Well, technically speaking it doesn't. Once again we're using the Umbraco content structure to iterate through children.</p>
+    </div>
+</div>
     
-    <div class="content" style="clear:both;">
-        <p>How does Merchello know which products are in our categories? </p>
+<div class="row">
+        
         <ul>
             <li>In this case, we're looping through every "child" content item within our category.</li>
             <li>It's that simple!</li>
         </ul>
     </div>
 
-
-</section>
+<hr/>
 
 <!-- Helper function that accepts Umbraco content item as parameter. Returns a visual display for each individual product in the list. -->
 @helper DisplayTheProduct(IPublishedContent productPage)
 {
     var product = (ProductDisplay)Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
    
-    <li class="product">
-
+    
+    
+    <div class="col-lg-4 col-md-6 hero-feature resource">
         <a href="@productPage.Url">
-            
-            <!-- Product image is one of the Umbraco content-picker properties we assigned to the Product's document type. -->
-            <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
+        <div class="thumbnail">
             @if (productPage.HasProperty("productImage") && productPage.HasValue("productImage"))
             {
                 IPublishedContent image = Umbraco.Media(productPage.GetPropertyValue("productImage"));
-                <img src="@image.Url" alt="@image.Name" class="productimage" />
+                
+            <!-- Product image is one of the Umbraco content-picker properties we assigned to the Product's document type. -->
+            <!-- This is pretty much a hack for the sake of reference; we're restricting the image size to use it as a thumbnail. -->
+           
+                <img src="@image.Url" alt="@image.Name" class="img-responsive" />
             }
 
-            <!-- Not that productPage.Name would give us Umbraco's page name, but prouct.Name gives us the Merchello product name -->
-            <h2>@product.Name</h2> 
-
-        </a>
-        <p>
-            <!-- Here's one way to verify that a Umbraco content page is linked to a Merchello Product: -->
+            <div class="caption">
+                  <!-- Not that productPage.Name would give us Umbraco's page name, but prouct.Name gives us the Merchello product name -->
+                <h2>@product.Name</h2> 
+                <!-- Here's one way to verify that a Umbraco content page is linked to a Merchello Product: -->
             <!--   By checking the merchelloProduct picker we've set up for the Umbraco content page -->
             @if (productPage.HasProperty("merchelloProduct") && productPage.HasValue("merchelloProduct"))
             {
@@ -73,9 +76,13 @@
                 @(merchProduct.ProductVariants.Any() ? MvcHtmlString.Create("<em>from</em> ") : MvcHtmlString.Empty) @GetFromPrice(merchProduct)
                 }
             }
-        </p>
-       
-    </li>
+                        
+                
+            </div>
+        </div>
+        </a>
+    </div>
+    
         
 }
 

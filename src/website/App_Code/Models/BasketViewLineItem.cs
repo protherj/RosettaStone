@@ -1,7 +1,7 @@
 ﻿using System;
 using Merchello.Core.Models;
 
-namespace Site.Models
+namespace Models
 {
     public class BasketViewLineItem
     {
@@ -30,7 +30,12 @@ namespace Site.Models
         /// <summary>
         /// The price (can be overrided) of the <see cref="IProductVariant"/>
         /// </summary>
-        public decimal Price { get; set; }
+        public decimal UnitPrice { get; set; }
+
+        /// <summary>
+        /// The total price of the line item
+        /// </summary>
+        public decimal TotalPrice { get; set; }
 
         /// <summary>
         /// The quantity to purchase
