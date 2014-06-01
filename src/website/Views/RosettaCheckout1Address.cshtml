@@ -1,6 +1,6 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Core
 @using Merchello.Web
-@using Site.Models
 
 @{
     Layout = "RosettaBasePage.cshtml";
@@ -14,11 +14,30 @@
     Response.Redirect("/");
 }
 
-@Html.Action("RenderShippingAddressForm", "Checkout", new { area = "Site" })
+@if (CurrentPage.HasValue("instructionHeading"))
+{
+    <h2>@CurrentPage.instructionHeading<br /><small>@CurrentPage.instructionTagLine</small></h2>
+}
+
+<div class="bs-docs-example">
+    @Html.Action("RenderAddressForm", "Checkout", new { area = "RosettaStone", addressType = AddressType.Shipping })
+</div>
+
+<div class="hero-spacer">
+
+@CurrentPage.instruction
+    
+</div>
 
 @section ViewList
 {
     @RosettaHelper.GetViewBoxHtml("RosettaCheckout1Address.cshtml","Going to add documentation.")
     @RosettaHelper.GetViewBoxHtml("Partials/CheckoutStep1Address.cshtml","Partial View. Documentation...")
 
+}
+
+@section AddJs
+{
+    <script src="~/scripts/jquery.validate.min.js"></script>
+    <script src="~/scripts/jquery.validate.unobtrusive.min.js"></script>
 }

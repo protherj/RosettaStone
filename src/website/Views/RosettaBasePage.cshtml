@@ -1,8 +1,8 @@
-﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
-@using Merchello.Web
+﻿@inherits UmbracoTemplatePage
 @{
     Layout = null;
-    IPublishedContent home = Umbraco.TypedContent(UmbracoContext.PageId).AncestorOrSelf(1);
+    
+    var home = Umbraco.TypedContent(UmbracoContext.PageId).AncestorOrSelf(1);
 }
 
 
@@ -19,10 +19,13 @@
     <title>@home.GetPropertyValue("pageTitle") | @CurrentPage.GetPropertyValue("pageTitle")</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="/css/bootstrap.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/bootstrap-glyphicons.css" rel="stylesheet"/>
     <!-- Custom CSS for the 'Heroic Features' Template -->
     <link href="/css/heroic-features.css" rel="stylesheet">
+    <!-- font-awesome -->
+    <link href="/css/font-awesome.min.css"/>
+    <link href="/css/social-buttons.css"/>
     <link href="/css/rosetta-stone-overrides.css" rel="stylesheet">
 </head>
 
@@ -35,7 +38,7 @@
 
         @RenderBody()
         
-        <hr/>
+       
 
         <div class="panel panel-info">
             <div class="panel-heading">
@@ -44,9 +47,11 @@
             <div class="panel-body">
                 <div class="list-group">
                     
-                    @RosettaHelper.GetViewBoxHtml("RosettaBasePage.cshtml", "Our base page contains the basic setup for our site, such as CSS setup and placing the navigation and logo throughout the site.")
-
                     @RenderSection("ViewList", false)
+                    
+                    @RosettaHelper.GetViewBoxHtml("Partials/Navigation.cshtml", "Partial view used to render the top navigation bar.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingMerchelloWeb })
+                    @RosettaHelper.GetViewBoxHtml("RosettaBasePage.cshtml", "Our base page contains the basic setup for our site, such as CSS setup and placing the navigation and logo throughout the site.")
+                    
                 </div>
             </div>
         </div>
@@ -68,7 +73,7 @@
     <script src="/scripts/jquery-1.10.2.js"></script>
     <script src="/scripts/bootstrap.js"></script>
     <script src="/scripts/merch-functions.js"></script>
-    
+    @RenderSection("AddJs", false)
 </body>
 
 </html>

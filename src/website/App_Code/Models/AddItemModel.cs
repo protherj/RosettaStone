@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Site.Models
+namespace Models
 {
     /// <summary>
     /// Simple Model for the Add To Cart form.

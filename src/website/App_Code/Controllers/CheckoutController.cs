@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Merchello.Core;
 using Merchello.Core.Models;
-using System.Web;
+using Models;
 using Umbraco.Web.Mvc;
-using Umbraco.Core.Logging;
 using Merchello.Web;
-using Merchello.Web.Workflow;
 using System.Web.Mvc;
-using Site.Models;
 
-namespace Site.Controllers
+namespace Controllers
 {
 
-    [PluginController("Site")]
-    public class CheckoutController : SiteContollerBase
+    [PluginController("RosettaStone")]
+    public class CheckoutController : MerchelloSurfaceContoller
     {
         
         public CheckoutController()
@@ -26,71 +23,133 @@ namespace Site.Controllers
          {}
 
         [ChildActionOnly]
-        public ActionResult RenderShippingAddressForm()
+        public ActionResult RenderAddressForm(AddressType addressType)
         {
-            return PartialView("CheckoutStep1Address");
+            ViewBag.AddressType = addressType;
+
+            // COUNTRIES - We only want to populate the address drop down list with applicable countries.  Merchello uses the ISO Code for the country so we must be specific
+            // -------------------------------------------------------------------------------------------------------------
+
+            // For SHIPPING - We have to be able to actually ship to a country so we need to filter the list.  Configuration
+            // of which countries we can ship to is do through the Merchello back office in the shipping section.
+
+            // For BILLING - We'll let someone pay from pretty much anyway - so we need a list of all countries
+
+            var countries = AddressType.Shipping == addressType ? AllowableShipCounties.Value : AllCountries.Value;
+
+            var countriesArray = countries as ICountry[] ?? countries.ToArray(); // because ReSharper was having fun
+
+            ViewBag.Countries = countriesArray.Select(x => new SelectListItem()
+                {
+                    Value = x.CountryCode,
+                    Text = x.Name
+                });
+
+            // REGIONS - Regions are important for both Shipping and Taxation - Again Merchello uses the ISO Code here so we need to be really specific
+            // ---------------------------------------------------------------------------------------------------------------
+
+            // This is going to be a little messy as we really should separate out the regions per country code
+            // ... easy to do with an async call on country code change ... but for this example, we are going to group them all
+            // together since they are only US and CA at this point (and we're somewhat used to it)
+
+            var regions = BuildProvinceCollection(countriesArray);
+
+            ViewBag.Regions = regions.Select(x => new SelectListItem()
+                {
+                    Value = x.ProvinceCode,
+                    Text = x.Name
+                });
+
+            return PartialView("AddressForm");
         }
 
+        /// <summary>
+        /// Saves either a Shipping or Billing Address
+        /// </summary>
+        /// <param name="model">The <see cref="AddressModel"/> to be persisted</param>
         [HttpPost]
-        public ActionResult SaveShippingAddress(AddressModel model)
+        public ActionResult SaveAddress(AddressModel model)
         {
-            if (ModelState.IsValid)
+            if(model.AddressType == AddressType.Custom) throw new InvalidOperationException("We are not handling Custom Address Types in this example");
+
+            if (!ModelState.IsValid) return CurrentUmbracoPage();
+
+            // Rosetta extension method "ToAddress()"
+            var address = model.ToAddress();
+
+            // Basket has an extension method that handles the "BasketSalesPrepartion" instantiation
+            // SalesPrepartionBase is responsible for persisting information needed to facilitate an order
+            // while we are collecting enough information to create an invoice and eventually an order.
+           
+
+            // Addresses are saved to either an AnonymousCustomer (version 1.1.x) or potentially an established
+            // customer (assuming they have logged in).  Established, or persisted customers are slated to be introduced
+            // in Merchello Version 1.3.0.  No code change will be required here as the "conversion" will be handled in the
+            // "CustomerContext"
+
+            int proceed;
+            // Hacky for this example but we are hard coding the "proceed" (Umbraco Content Id) for the next steps
+
+            // 1075 Shipment Rate Quotes
+            // 1077 confirmation
+
+            if (model.AddressType == AddressType.Shipping)
             {
-
-                //can be done in view:
-                var shippingAddress = model.ToAddress();
-                Basket.SalePreparation().SaveShipToAddress(shippingAddress);
-//                Basket.SalePreparation().SaveBillToAddress(address);
-                var shipment = Basket.PackageBasket(shippingAddress).FirstOrDefault(); //This is an enumeration of IShipRateQuote which will be used to populate drop-down to choose shipping method. Can be called from view.
-                //check for null shipment before foreach
-                foreach(var quote in shipment.ShipmentRateQuotes())
-                {
-                    var key = quote.ShipMethod.Key;
-                    var name = quote.ShipMethod.Name;
-
-                }
-                
-                //this happens on postback (it's the method they chose). It includes a rate.
-                //var shipmentAgain = Basket.PackageBasket(shippingAddress).FirstOrDefault();
-                //var approvedQuote = shipmentAgain.ShipmentRateQuoteByShipMethod(shipMethodKey); //Got param from drop-down...
-                //Basket.SalePreparation().SaveShipmentRateQuote(approvedQuote); //saves their chosen shipment method.
-
-                //NOTE: This assumes one shipment type.
-                //Basket.SalePreparation().SaveShipmentRateQuote();
-
-                //TO SHOW INVOICE:
-                //var invoice = Basket.SalePreparation().PrepareInvoice(); //creates invoice but doesn't save to database. E.g. calc tax, shipping, etc.
-                
-                //PAYMENT
-                //var paymentMethods = Basket.SalePreparation().GetPaymentGatewayMethods(); //IPaymentGatewayMethod model.
-                //(use key from kitten site).
-
-
-                if (Basket.SalePreparation().IsReadyToInvoice()) //technically is happening in .PrepareInvoice() automatically. but can be used as a check if you want.
-                {
-                    var invoice = Basket.SalePreparation().PrepareInvoice();
-
-                    var attempt = invoice.AuthorizePayment(Guid.NewGuid()); //returns a payment result.
-                    if (attempt.Payment.Success)
-                    {
-                        var payment = attempt.Payment.Result;
-                        var invoiceAgain = attempt.Invoice;
-                    }
-
-                    //POST BACK PAYMENT 
-                    //invoice.AuthorizePayment(1);//paymentMethodKey -- from dropdown, //overloads might be used for some providers, provider dependent.
-                    //authorizepayment above will save to database
-                }
-
-
-                //Notification.Trigger("OrderConfirmation", attempt); //coming soon.
-
+                Basket.SalePreparation().SaveShipToAddress(address);
+                proceed = 1075;
             }
-            return RedirectToUmbracoPage(1062);
+            else
+            {
+                Basket.SalePreparation().SaveBillToAddress(address);
+                proceed = 1077;
+            }
+
+            return RedirectToUmbracoPage(proceed);
+
         }
 
 
+        public ActionResult SaveApprovedShipmentRateQuote(Guid shipMethodKey)
+        {
+            return RedirectToUmbracoPage(1076);
+        }
 
+        /// <summary>
+        /// Returns a collection of countries Merchello is "allowed" to ship to
+        /// </summary>
+        /// <remarks>
+        /// We want to lazy load this so that we do not have to query for these on every call to the controller ... only when we need them
+        /// </remarks>
+        private Lazy<IEnumerable<ICountry>> AllowableShipCounties
+        {
+            get
+            {
+                return new Lazy<IEnumerable<ICountry>>(() => Shipping.GetAllowedShipmentDestinationCountries().OrderBy(x => x.Name));
+            }
+        }
 
+        /// <summary>
+        /// Returns a collection of all countries Merchello
+        /// </summary>
+        /// <remarks>
+        /// We want to lazy load this so that we do not have to query for these on every call to the controller ... only when we need them
+        /// </remarks>
+        private Lazy<IEnumerable<ICountry>> AllCountries
+        {
+            get
+            {
+                return new Lazy<IEnumerable<ICountry>>(() => Services.StoreSettingService.GetAllCountries().OrderBy(x => x.Name));
+            }
+        }
+
+        private static IEnumerable<ProvinceModel> BuildProvinceCollection(IEnumerable<ICountry> countries)
+        {
+            var models = new List<ProvinceModel>();
+            foreach (var country in countries)
+            {
+                models.AddRange(country.Provinces.Select(p => new ProvinceModel() { ProvinceCode = p.Code, Name = p.Name }));
+            }
+            return models;
+        }
     }
 }

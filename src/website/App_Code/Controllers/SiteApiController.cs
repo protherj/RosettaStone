@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using Merchello.Core;
 using Merchello.Core.Models;
 using Merchello.Web;
 using Merchello.Web.Models.ContentEditing;
 using Merchello.Web.WebApi;
-using Site.Models;
+using Models;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.WebApi;
 
-namespace Site.Controllers
+namespace Controllers
 {
     /// <summary>
     /// Utility controller - assists with little lookups
     /// </summary>
-    [PluginController("Site")]
+    [PluginController("RosettaStone")]
     [JsonCamelCaseFormatter]
     public class SiteApiController : UmbracoApiController
     {
