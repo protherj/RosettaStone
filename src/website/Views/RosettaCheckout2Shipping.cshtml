@@ -49,10 +49,21 @@
         <div class="bs-docs-example">
             <div class="row">
                 <div class="col-lg-4">
-                    @Html.Label("Select your shipment method", new { @class = "control-label"})
+                    
                     @using (Html.BeginUmbracoForm<CheckoutController>("SaveApprovedShipmentRateQuote", new { @class = "form form-horizontal", role = "form" }))
                     {
-                        @Html.DropDownList("shipMethodKey", quoteItems, new { @class="form-control"})
+                     
+                        <div class="control-group">
+                            @Html.Label("Select your shipment method", new { @class = "control-label"})
+                            <div class="controls">
+                                @Html.DropDownList("shipMethodKey", quoteItems, new { @class="form-control"})
+                            </div>
+                       </div>
+
+                        <div class="text-center">
+                            <input type="submit" class="btn btn-primary" value="Proceed to Step 3 (Payment Method Selection)"/>
+                        </div>
+
                     }
                 </div>
                 <div class="col-lg-8">
