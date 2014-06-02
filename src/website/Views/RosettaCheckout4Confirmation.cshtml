@@ -1,4 +1,30 @@
-﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
+@using Merchello.Web.Workflow
 @{
     Layout = "RosettaBasePage.cshtml";
 }
+
+
+
+<div class="bs-docs-example">
+    
+    
+        <h2>Confirm you want to place this order</h2>
+    <div class="hero-spacer">
+        
+        <p><b>Payment Option Selected:</b> @CurrentCustomer.Basket().SalePreparation().GetPaymentMethod().Name</p>
+        
+        <p class="info">If the payment processor requires an extra step, you may be redirected.</p>
+
+        @Html.ActionLink("I confirm. I want these beans!", "CustomerPurchaseAndProcessPayment", "Checkout", new { area = "RosettaStone"}, new { @class="btn btn-primary"})
+        
+        
+    </div>
+
+    <div class="hero-spacer">
+        <h3>Invoice Summary</h3>
+        @Html.Action("RenderInvoiceSummary", "Checkout", new { area = "RosettaStone"})
+    </div>
+</div>
+

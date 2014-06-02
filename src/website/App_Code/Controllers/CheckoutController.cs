@@ -19,9 +19,11 @@ namespace Controllers
         // Normally you would not want to hard code these Id's in a controller
         // as it is too easy for a back office user to make a mistake and muck things up
 
+        private const int BasketPageId = 1062;
         private const int ShipRateQuoteId = 1075; // Shipment Rate Quotes
         private const int PaymentInfoId = 1076; // Selecting payment information
-        private readonly int _confirmationId = 1077; // confirmation
+        private const int ConfirmationId = 1077; // confirmation
+        private const int ReceiptId = 1078; // final page - receipt (if paid)
 
         public CheckoutController()
              : this(MerchelloContext.Current)
@@ -34,6 +36,7 @@ namespace Controllers
         /// Renders the Address Form for shipping and billing address entry
         /// </summary>
         /// <param name="addressType">The <see cref="AddressType"/> - Shipping and Billing are handled</param>
+        /// <param name="model"></param>
         /// <returns>Partial view</returns>
         /// <remarks>
         /// 
@@ -148,6 +151,9 @@ namespace Controllers
             // Get the shipment again
             var shipment = Basket.PackageBasket(shippingAddress).FirstOrDefault();
 
+            // Clear any previously saved quotes (eg. the user went back to their basket and started the process over again).
+            Basket.SalePreparation().ClearShipmentRateQuotes();
+
             // get the quote using the "approved shipping method"
             var quote = shipment.ShipmentRateQuoteByShipMethod(shipMethodKey);
 
@@ -157,25 +163,54 @@ namespace Controllers
             return RedirectToUmbracoPage(PaymentInfoId); // Proceed to step 3
         }
 
+
         /// <summary>
-        /// Renders the payment selection drop down list
+        /// Saves the payment information
         /// </summary>
-        /// <returns></returns>
-        public ActionResult RenderPaymentSelection()
+        /// <remarks>
+        /// 
+        /// In order to generate an invoice, we need the billing address.  In this walkthrough
+        /// we have opted to seperate the Shipping and Billing address screens to explain the process.
+        /// As a result, we have to add another step (confirm the order) to preview the invoice.
+        /// 
+        /// </remarks>
+        [HttpPost]
+        public ActionResult SavePaymentInformation(PaymentInformationModel model)
         {
-            // Get a list of all payment methods defined in the back office
-            var paymentMethods = Payment.GetPaymentGatewayMethods().Select(x => new SelectListItem()
-            {
-                Value = x.PaymentMethod.Key.ToString(),
-                Text = x.PaymentMethod.Name
-            });
+            if (!ModelState.IsValid) return CurrentUmbracoPage();
 
-            ViewBag.PaymentMethods = paymentMethods;
-            
+            // Saves the customer Billing Information 
+            Basket.SalePreparation().SaveBillToAddress(model.ToAddress());
 
-            return PartialView("PaymentMethodSelection");
+            var paymentMethod = Payment.GetPaymentGatewayMethodByKey(model.PaymentMethodKey).PaymentMethod;
+
+            // Save the payment method selection
+            Basket.SalePreparation().SavePaymentMethod(paymentMethod);
+
+            return RedirectToUmbracoPage(ConfirmationId);
         }
 
+        /// <summary>
+        /// Renders the invoice summary
+        /// </summary>
+        [ChildActionOnly]
+        public ActionResult RenderInvoiceSummary()
+        {
+            return PartialView("InvoiceSummary", Basket.SalePreparation().PrepareInvoice());
+        }
+
+        [HttpGet]
+        public ActionResult CustomerPurchaseAndProcessPayment()
+        {
+            // This check asserts that we have enough
+            // this should be handled a bit nicer for the customer.  
+            if (!Basket.SalePreparation().IsReadyToInvoice()) return RedirectToUmbracoPage(BasketPageId);
+
+            // prepare the invoice again.
+            var invoice = Basket.SalePreparation().PrepareInvoice();
+
+            return RedirectToUmbracoPage(ReceiptId);
+        }
 
         /// <summary>
         /// Utility: Returns a collection of countries Merchello is "allowed" to ship to

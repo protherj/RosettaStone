@@ -1,6 +1,7 @@
 ﻿using System;
 using Merchello.Core;
 using Merchello.Core.Gateways.Payment;
+using Merchello.Core.Models;
 using Merchello.Web;
 using Merchello.Web.Workflow;
 using Umbraco.Core.Logging;
@@ -20,6 +21,7 @@ namespace Controllers
     {
         private readonly IBasket _basket;
         private readonly IMerchelloContext _merchelloContext;
+        private readonly ICustomerBase _currentCustomer;
         
         protected MerchelloSurfaceContoller(IMerchelloContext merchelloContext)
         {
@@ -33,9 +35,17 @@ namespace Controllers
             _merchelloContext = merchelloContext;
 
             var customerContext = new CustomerContext(UmbracoContext); // UmbracoContext is from SurfaceController
-            var currentCustomer = customerContext.CurrentCustomer;
+            _currentCustomer = customerContext.CurrentCustomer;
 
-            _basket = currentCustomer.Basket();
+            _basket = _currentCustomer.Basket();
+        }
+
+        /// <summary>
+        /// Gets the current customer.
+        /// </summary>
+        protected ICustomerBase CurrentCustomer
+        {
+            get { return _currentCustomer; }
         }
 
         /// <summary>
