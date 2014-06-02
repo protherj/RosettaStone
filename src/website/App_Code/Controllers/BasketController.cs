@@ -21,8 +21,6 @@ namespace Controllers
         private const int BasketContentId = 1062;
         private const int PaymentContentId = 1074;
 
-        private IPublishedContent _home;
-        private IPublishedContent _basketPage;
         
         public BasketController()
              : this(MerchelloContext.Current)

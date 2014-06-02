@@ -31,7 +31,7 @@ namespace Controllers
 
             _merchelloContext = merchelloContext;
 
-            var customerContext = new CustomerContext(UmbracoContext);
+            var customerContext = new CustomerContext(UmbracoContext); // UmbracoContext is from SurfaceController
             var currentCustomer = customerContext.CurrentCustomer;
 
             _basket = currentCustomer.Basket();

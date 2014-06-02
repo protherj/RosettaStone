@@ -1,4 +1,5 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Controllers
 @using Merchello.Core
 @using Merchello.Web
 
@@ -20,7 +21,17 @@
 }
 
 <div class="bs-docs-example">
-    @Html.Action("RenderAddressForm", "Checkout", new { area = "RosettaStone", addressType = AddressType.Shipping })
+    
+    @using (Html.BeginUmbracoForm<CheckoutController>("SaveAddress", new { area = "RosettaStone"}, new { @class="form form-horizontal", role = "form"}))
+    {
+    
+        @Html.Action("RenderAddressForm", "Checkout", new { area = "RosettaStone", addressType = AddressType.Shipping })
+    
+        <div class="text-right">
+            <input type="submit" value="Proceed to Step 2 (Get Shipping Rate Quotes)" class="btn btn-primary"/>
+        </div>
+    }
+
 </div>
 
 <div class="hero-spacer">
