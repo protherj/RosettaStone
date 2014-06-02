@@ -1,7 +1,13 @@
-﻿@inherits Merchello.Web.Mvc.MerchelloViewPage<>
-@using Controllers
-@using Merchello.Web
+﻿@inherits UmbracoTemplatePage
 
 @{
     Layout = "RosettaBasePage.cshtml";
+}
+
+@Html.Action("RenderPaymentSelection", "Checkout", new { area = "RosettaStone" })
+
+
+@section ViewList
+{
+
 }
