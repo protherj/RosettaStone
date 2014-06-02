@@ -1,18 +1,7 @@
-﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+﻿@inherits Merchello.Web.Mvc.MerchelloViewPage<>
+@using Controllers
 @using Merchello.Web
 
 @{
     Layout = "RosettaBasePage.cshtml";
 }
-
- <div class="bs-docs-example">
-    <div class="row">
-        <div class="col-lg-4">
-                    
-           
-        </div>
-        <div class="col-lg-8">
-            @Html.Action("RenderPreparedInvoice", "Invoice", new { area = "RosettaStone" })
-        </div>
-    </div>
-</div>

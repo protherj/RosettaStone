@@ -157,6 +157,25 @@ namespace Controllers
             return RedirectToUmbracoPage(PaymentInfoId); // Proceed to step 3
         }
 
+        /// <summary>
+        /// Renders the payment selection drop down list
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult RenderPaymentSelection()
+        {
+            // Get a list of all payment methods defined in the back office
+            var paymentMethods = Payment.GetPaymentGatewayMethods().Select(x => new SelectListItem()
+            {
+                Value = x.PaymentMethod.Key.ToString(),
+                Text = x.PaymentMethod.Name
+            });
+
+            ViewBag.PaymentMethods = paymentMethods;
+            
+
+            return PartialView("PaymentMethodSelection");
+        }
+
 
         /// <summary>
         /// Utility: Returns a collection of countries Merchello is "allowed" to ship to

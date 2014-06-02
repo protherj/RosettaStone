@@ -1,5 +1,6 @@
 ﻿using System;
 using Merchello.Core;
+using Merchello.Core.Gateways.Payment;
 using Merchello.Web;
 using Merchello.Web.Workflow;
 using Umbraco.Core.Logging;
@@ -53,8 +54,17 @@ namespace Controllers
             get { return _merchelloContext.Services; }
         }
 
+
         /// <summary>
-        /// Exposes the Shipping Context
+        /// Exposes the <see cref="IPaymentContext"/>
+        /// </summary>
+        protected IPaymentContext Payment
+        {
+            get { return _merchelloContext.Gateways.Payment; }
+        }
+
+        /// <summary>
+        /// Exposes the <see cref="IShippingContext"/>
         /// </summary>
         protected IShippingContext Shipping
         {

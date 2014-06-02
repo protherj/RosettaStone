@@ -43,10 +43,9 @@
 <!-- Helper function that accepts Umbraco content item as parameter. Returns a visual display for each individual product in the list. -->
 @helper DisplayTheProduct(IPublishedContent productPage)
 {
-    var product = (ProductDisplay)Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
+    var product = Merchello.Product(productPage.GetPropertyValue("merchelloProduct").ToString());  
    
-    
-    
+       
     <div class="col-lg-4 col-md-6 hero-feature resource">
         <a href="@productPage.Url">
         <div class="thumbnail">
