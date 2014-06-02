@@ -16,39 +16,42 @@
 }
 
 <div class="row">
-    <div class="col-lg-6">
+    <div class="col-lg-4">
         @RosettaSnippets.RenderAddress(Model.GetBillingAddress(), "INVOICE")
     </div>
-    <div class="col-lg-6">
-       @RosettaSnippets.RenderAddress(companyInfo, "FROM")
+    <div class="col-lg-4">
+        @RosettaSnippets.RenderAddress(companyInfo, "FROM")
     </div>
-</div>
-<div class="row hero-spacer">
-    <div class="col-lg-10 text-right">
+    <div class="col-lg-4">
+        <div class="row">
+    <div class="col-lg-6 text-right">
         <b>Invoice Number:</b>
     </div>
-    <div class="col-lg-2">
-        @Model.PrefixedInvoiceNumber()
+    <div class="col-lg-6">
+        @(Model.PrefixedInvoiceNumber() == "0" ? "TBD" : Model.PrefixedInvoiceNumber())
     </div>
 
-    <div class="row hero-spacer">
-        <div class="col-lg-10 text-right">
+    <div class="row">
+        <div class="col-lg-6 text-right">
             <b>Date:</b>
         </div>
-        <div class="col-lg-2">
-            @Model.InvoiceDate
+        <div class="col-lg-6">
+            @Model.InvoiceDate.ToShortDateString()
         </div>
     </div>
     
-    <div class="row hero-spacer">
-        <div class="col-lg-10 text-right">
+    <div class="row">
+        <div class="col-lg-6 text-right">
             <b>Status:</b>
         </div>
-        <div class="col-lg-2">
+        <div class="col-lg-6">
             @Model.InvoiceStatus.Name
         </div>
     </div>
 </div>
+    </div>
+</div>
+
 <h4>Description</h4>
 <table class="table">
     <thead>
@@ -66,15 +69,15 @@
             <tr>
                 <td>@item.Name</td>
                 <td>@item.Sku</td>
-                <td>@item.Price</td>
+                <td>@item.Price.ToString("C")</td>
                 <td>@item.Quantity</td>
-                <td>@item.TotalPrice</td>
+                <td>@item.TotalPrice.ToString("C")</td>
             </tr>
         }
         <tr>
             <td colspan="3">All sales are final.</td>
             <td class="text-right"><b>Invoice Total:</b></td>
-            <td>@Model.Total</td>
+            <td>@Model.Total.ToString("C")</td>
         </tr>
     </tbody>
 </table>
