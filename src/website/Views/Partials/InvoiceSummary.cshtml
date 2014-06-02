@@ -1,0 +1,80 @@
+@inherits Merchello.Web.Mvc.MerchelloViewPage<IInvoice>
+@using Merchello.Core.Models
+
+@{
+    var companyInfo = new Address()
+        {
+            Organization = "Rosetta Bean Corp",
+            Name = "Customer Service",
+            Address1 = "1212 Bean Corp Plaza",
+            Locality = "New York",
+            Region = "NY",
+            PostalCode = "11122",
+            CountryCode = "US",
+            Email = "support@rosetta-beans.com"
+        };
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        @RosettaSnippets.RenderAddress(Model.GetBillingAddress(), "INVOICE")
+    </div>
+    <div class="col-lg-6">
+       @RosettaSnippets.RenderAddress(companyInfo, "FROM")
+    </div>
+</div>
+<div class="row hero-spacer">
+    <div class="col-lg-10 text-right">
+        <b>Invoice Number:</b>
+    </div>
+    <div class="col-lg-2">
+        @Model.PrefixedInvoiceNumber()
+    </div>
+
+    <div class="row hero-spacer">
+        <div class="col-lg-10 text-right">
+            <b>Date:</b>
+        </div>
+        <div class="col-lg-2">
+            @Model.InvoiceDate
+        </div>
+    </div>
+    
+    <div class="row hero-spacer">
+        <div class="col-lg-10 text-right">
+            <b>Status:</b>
+        </div>
+        <div class="col-lg-2">
+            @Model.InvoiceStatus.Name
+        </div>
+    </div>
+</div>
+<h4>Description</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Sku</th>
+            <th>Unit Price</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Sku</td>
+                <td>@item.Price</td>
+                <td>@item.Quantity</td>
+                <td>@item.TotalPrice</td>
+            </tr>
+        }
+        <tr>
+            <td colspan="3">All sales are final.</td>
+            <td class="text-right"><b>Invoice Total:</b></td>
+            <td>@Model.Total</td>
+        </tr>
+    </tbody>
+</table>
