@@ -1,4 +1,5 @@
 @inherits Merchello.Web.Mvc.MerchelloViewPage<IInvoice>
+@using Merchello.Core
 @using Merchello.Core.Models
 
 @{
@@ -60,11 +61,11 @@
             <th>Sku</th>
             <th>Unit Price</th>
             <th>Quantity</th>
-            <th>Total Price</th>
+            <th>Totals</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.Items)
+        @foreach (var item in Model.Items.Where(x => x.LineItemType == LineItemType.Product))
         {
             <tr>
                 <td>@item.Name</td>
@@ -74,6 +75,14 @@
                 <td>@item.TotalPrice.ToString("C")</td>
             </tr>
         }
+        <tr>            
+            <td colspan="4" class="text-right"><b>Shipping Total:</b></td>
+            <td>@Model.TotalShipping().ToString("C")</td>
+        </tr>
+        <tr>            
+            <td colspan="4" class="text-right"><b>Tax:</b></td>
+            <td>@Model.TotalTax().ToString("C")</td>
+        </tr>
         <tr>
             <td colspan="3">All sales are final.</td>
             <td class="text-right"><b>Invoice Total:</b></td>
