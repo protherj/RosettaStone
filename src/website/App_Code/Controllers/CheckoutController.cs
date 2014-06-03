@@ -207,8 +207,6 @@ namespace Controllers
             // this should be handled a bit nicer for the customer.  
             if (!Basket.SalePreparation().IsReadyToInvoice()) return RedirectToUmbracoPage(BasketPageId);
 
-            // prepare the invoice again.
-            var invoice = Basket.SalePreparation().PrepareInvoice();
 
             // for cash providers we only want to authorize the payment
             var paymentMethod = Basket.SalePreparation().GetPaymentMethod();
@@ -217,7 +215,9 @@ namespace Controllers
 
             if (Constants.ProviderKeys.Payment.CashPaymentProviderKey == paymentMethod.ProviderKey)
             {
-                attempt = invoice.AuthorizePayment(paymentMethod.Key);
+                // AuthorizePayment will save the invoice with an Invoice Number.
+                //
+                attempt = Basket.SalePreparation().AuthorizePayment(paymentMethod.Key);
                 
             }
             else // we 
@@ -226,7 +226,12 @@ namespace Controllers
                 throw new NotImplementedException();
             }
 
+            return RenderConfirmationThankyou(attempt);
+        }
 
+
+        private ActionResult RenderConfirmationThankyou(IPaymentResult attempt)
+        {
             if (!attempt.Payment.Success)
             {
                 // TODO Notification trigger for bad payment
@@ -235,9 +240,9 @@ namespace Controllers
             else
             {
                 // TODO Notify OrderConfirmation
-                Basket.Empty();    
+                Basket.Empty();
             }
-            
+
 
             return RedirectToUmbracoPage(ReceiptId);
         }
