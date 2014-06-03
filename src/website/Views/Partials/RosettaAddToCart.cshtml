@@ -24,7 +24,7 @@
                 @Html.LabelFor(x => x.OptionChoices[index], option.Name, new { @class="control-label"})
                 
                 <div class="controls">
-                    @Html.DropDownListFor(x => x.OptionChoices[index], choices, new { name = option.Name.ToLower().Replace(" ", "-"), id = option.Key, @class="form-control ProductVariants", OnChange = "merch.merchProducts.getUpdatedVariants(this)" })
+                    @Html.DropDownListFor(x => x.OptionChoices[index], choices, new { name = option.Name.ToLower().Replace(" ", "-"), id = option.Key, @class = "form-control ProductVariants", OnChange = "merchello.Products.getUpdatedVariants(this)" })
                     @Html.ValidationMessageFor(x => x.OptionChoices, "Please select one")
                 </div>
                 </div>
