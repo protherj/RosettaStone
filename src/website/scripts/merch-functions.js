@@ -14,6 +14,9 @@ var merchello = {
 	Products: {
 	    init: function () {
 	        merchello.Products.getVariantPrice();
+	        if ($('.ProductVariants').length > 0) {
+	            merchello.Products.getUpdatedVariants($('.ProductVariants')[0]);
+	        }
 	    },
 
 	    updateAddToCartVariants: function (variants, changedElement) {
@@ -54,10 +57,10 @@ var merchello = {
             
             $.ajax({
                 type: "GET",
-                url: "/umbraco/Site/SiteApi/GetProductVariantPrice",
+                url: "/umbraco/RosettaStone/SiteApi/GetProductVariantPrice",
                 data: variantOptions,
                 success: function(price) {
-                    $("#ProductPrice").text(price);
+                    $("#productPrice").text(price);
                 },
                 dataType: "json",
                 traditional: true
@@ -75,7 +78,7 @@ var merchello = {
 
             $.ajax({
                 type: "GET",
-                url: "/umbraco/Site/SiteApi/FilterOptionsBySelectedChoices",
+                url: "/umbraco/RosettaStone/SiteApi/FilterOptionsBySelectedChoices",
                 data: variantOptions,
                 success: function(variants){
                     merchello.Products.updateAddToCartVariants(variants, variant);
