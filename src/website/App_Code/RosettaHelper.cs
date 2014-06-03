@@ -59,6 +59,7 @@ public class RosettaHelper
     public static string UsingMerchelloCore = "<b>Using</b> <abbr title=\"Includes the core code from Merchello, such as enums\">Merchello.Core</abbr>";
     public static string UsingControllers = "<b>Using</b> <abbr title=\"Includes Merchello surface controllers, such as the CheckoutController responsible for the checkout process\">Controllers</abbr>";
     public static string UsingModels = "<b>Using</b> <abbr title=\"Merchello makes access to POCO models easy via this namespace, such as the address model\">Models</abbr>";
+    public static string UsingShippingGateway = "<b>Using</b> <abbr title=\"Includes Merchello's access to shipping gateway methods\">Merchello.Core.Gateways.Shipping</abbr>";
 
-
+    
 }

@@ -20,6 +20,7 @@
     <h2>@CurrentPage.instructionHeading<br /><small>@CurrentPage.instructionTagLine</small></h2>
 }
 
+<!-- If there are no shippable items in the basket, show our 'RenderCanNotShip' section, otherwise display shipping settings -->
 @(shipment == null ? @RenderCanNotShip() : @RenderSelectShippingOption(shipment))
 
 @helper RenderCanNotShip()
@@ -27,6 +28,7 @@
     <p>The current basket does not have shippable items</p>
 }
 
+<!-- this helper function is passed the Merchello model IShipment created from the current basket's shippable items -->
 @helper RenderSelectShippingOption(IShipment shipment)
 {
 
@@ -72,4 +74,16 @@
             </div>
         </div>
     }
+}
+
+
+<div class="hero-spacer">
+
+@CurrentPage.instruction
+    
+</div>
+
+@section ViewList
+{
+    @RosettaHelper.GetViewBoxHtml("RosettaCheckout2Shipping.cshtml", "This view takes into account the shipping address and basket items, and renders the available shipping options and price quotes.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingControllers, RosettaHelper.UsingShippingGateway, RosettaHelper.UsingModels, RosettaHelper.UsingMerchelloWeb })
 }
