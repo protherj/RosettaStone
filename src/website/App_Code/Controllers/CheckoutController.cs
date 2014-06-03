@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Merchello.Core;
+using Merchello.Core.Gateways.Payment;
 using Merchello.Core.Models;
 using Models;
 using Umbraco.Web.Mvc;
@@ -208,6 +209,35 @@ namespace Controllers
 
             // prepare the invoice again.
             var invoice = Basket.SalePreparation().PrepareInvoice();
+
+            // for cash providers we only want to authorize the payment
+            var paymentMethod = Basket.SalePreparation().GetPaymentMethod();
+
+            IPaymentResult attempt;
+
+            if (Constants.ProviderKeys.Payment.CashPaymentProviderKey == paymentMethod.ProviderKey)
+            {
+                attempt = invoice.AuthorizePayment(paymentMethod.Key);
+                
+            }
+            else // we 
+            {
+                // TODO wire in redirect to Credit Card view or PayPal ... etc.
+                throw new NotImplementedException();
+            }
+
+
+            if (!attempt.Payment.Success)
+            {
+                // TODO Notification trigger for bad payment
+                // Notific
+            }
+            else
+            {
+                // TODO Notify OrderConfirmation
+                Basket.Empty();    
+            }
+            
 
             return RedirectToUmbracoPage(ReceiptId);
         }
