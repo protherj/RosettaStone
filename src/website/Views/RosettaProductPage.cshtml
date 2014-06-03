@@ -32,7 +32,7 @@
         <!--   and sometimes we are accessing the linked Merchello variable "product" which is Merchello.Product(CurrentPage.merchelloProduct) -->
         <h3>@product.Name</h3>
         <p>@CurrentPage.productDescription</p>
-        <p>@product.Price.ToString("C")</p>
+        <p id="productPrice">@product.Price.ToString("C")</p>
       
         
         <!-- We're calling the RenderAddToCart action that can be found in BasketController.cs code. -->
