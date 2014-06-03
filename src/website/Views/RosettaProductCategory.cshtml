@@ -1,6 +1,7 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
 @using Merchello.Web
 @using Merchello.Web.Models.ContentEditing
+
 @{
     Layout = "RosettaBasePage.cshtml";
 }
@@ -21,24 +22,10 @@
 
 </div>
 
-<hr/>
 
-<div class="row">
-    <div class="col-lg-12">
-        <h3>How does Merchello know which products are in our categories?</h3>
-        <p>Well, technically speaking it doesn't. Once again we're using the Umbraco content structure to iterate through children.</p>
-    </div>
+<div class="content" style="clear:both;margin-bottom:20px;">
+    @CurrentPage.instruction
 </div>
-    
-<div class="row">
-        
-        <ul>
-            <li>In this case, we're looping through every "child" content item within our category.</li>
-            <li>It's that simple!</li>
-        </ul>
-    </div>
-
-<hr/>
 
 <!-- Helper function that accepts Umbraco content item as parameter. Returns a visual display for each individual product in the list. -->
 @helper DisplayTheProduct(IPublishedContent productPage)
@@ -82,7 +69,15 @@
         </a>
     </div>
     
-        
+}
+
+
+@section ViewList
+{
+
+    @RosettaHelper.GetViewBoxHtml("RosettaProductCategory.cshtml","This view iterates through each product in the category you're viewing.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingMerchelloWeb, RosettaHelper.UsingMerchelloContentEditing })
+
+    
 }
 
 

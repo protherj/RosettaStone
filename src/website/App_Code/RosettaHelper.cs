@@ -55,4 +55,7 @@ public class RosettaHelper
     public static string InheritsMerchelloViewPage = "<b>Inherits</b> <abbr title=\"Exposes the CustomerContext and MerchelloHelper in a view with a custom model\">Merchello.Web.Mvc.MerchelloViewPage<{0}></abbr>";
     public static string InheritsMerchelloTemplatePage = "<b>Inherits</b> <abbr title=\"Exposes the CustomerContext and MerchelloHelper\">Merchello.Web.Mvc.MerchelloTemplatePage</abbr>";
     public static string UsingMerchelloWeb = "<b>Using</b> <abbr title=\"Typically included to expose extensions and certain Merchello types such as the Basket\">Merchello.Web</abbr>";
+    public static string UsingMerchelloContentEditing = "<b>Using</b> <abbr title=\"Typically included to expose basic display helpers\">Merchello.Web.Models.ContentEditing</abbr>";
+
+
 }
