@@ -25,8 +25,7 @@ public class RosettaHelper
 	{
         const string html = @"<div class=""list-group-item"">
                     <h4 class=""list-group-item-heading"">{0}</h4>
-                    <p class=""list-group-item-text"">{1}</p> 
-                    <h5>Merchello Specific Code</h5>   
+                    <p class=""list-group-item-text"" style=""margin-bottom:10px;"">{1}</p>
                     {2}
                 </div>";
 
@@ -36,17 +35,19 @@ public class RosettaHelper
     private static string BuildMerchelloSpecificCodeList(IEnumerable<string> merchelloSpecificCode)
     {
         var specificCode = merchelloSpecificCode as string[] ?? merchelloSpecificCode.ToArray();
-        if (!specificCode.Any()) return string.Format("<p><i>None - this is strictly an Umbraco view.</i></p>");
+        if (!specificCode.Any()) return string.Format("<p class=\"bg-warning\"><i>No Merchello-specific code, this is strictly an Umbraco view.</i></p>");
 
         var sb = new StringBuilder();
-        
-        sb.Append("<ul class=\"bg-warning\">");
+
+        sb.Append("<div class=\"bg-warning\">");
+        sb.Append("<h5>Merchello Specific Code:</h5>");
+        sb.Append("<ul>");
         
         foreach (var tidbit in specificCode)
         {
             sb.AppendFormat("<li>{0}</li>", tidbit);
         }
-        sb.Append("</ul>");
+        sb.Append("</ul></div>");
 
         return sb.ToString();
     }

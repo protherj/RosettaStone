@@ -1,13 +1,12 @@
 @inherits Merchello.Web.Mvc.MerchelloTemplatePage
 @using Merchello.Web
 
-@{
-    <!-- Note: AncestorOrSelf only works if you hard-code the name of your home page as the parameter. -->
-    var home = CurrentPage.AncestorOrSelf("RosettaHomePage");
+@{  
+    <!-- Note: AncestorOrSelf only works here if you hard-code the Id of your home page as the parameter. -->
+    var home = Umbraco.TypedContent(1054).AncestorOrSelf(1);
 }
 
-
-<!-- There is some very basic developer(non designer)-written CSS in rosettastonestyles.css that will make this menu horizontal -->
+<!-- we're using CSS from twitter bootstrap -->
 <nav class="navbar navbar-fixed-top navbar-inverse" role="navigation">        
         <div class="container">
             <div class="navbar-header">

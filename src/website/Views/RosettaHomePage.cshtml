@@ -4,12 +4,11 @@
 }
 
 <div class="jumbotron">
-        <h1>Merchello<br /><small>@Umbraco.Field("tagLine")</small></h1>
-        @CurrentPage.brief         
+    <h1>Merchello<br /><small>@Umbraco.Field("tagLine")</small></h1>
+    @CurrentPage.brief         
 </div>
 
-
-
+@CurrentPage.bodyText   
 <hr />
 
 <div class="row">
@@ -35,7 +34,7 @@
                         <h3>@resource.Name</h3>
                         <p>@resource.brief</p>
                         
-                        <button class="@(string.IsNullOrEmpty(resource.buttonClass) ? "btn btn-default" : resource.buttonClass)" onclick="window.location.href='@resource.linkUrl'"><i class="fa fa-github"></i> | @resource.buttonLabel</button>
+                        <button class="@(string.IsNullOrEmpty(resource.buttonClass) ? "btn btn-default" : resource.buttonClass)" onclick="window.open('@resource.linkUrl','_blank')"><i class="fa fa-github"></i> | @resource.buttonLabel</button>
                     </div>
                 </div>
             </div>
@@ -44,6 +43,7 @@
 
 </div>
 <!-- /.row -->
+
 
 <hr />
 

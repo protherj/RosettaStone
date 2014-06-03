@@ -6,7 +6,6 @@
 }
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,8 +48,8 @@
                     
                     @RenderSection("ViewList", false)
                     
-                    @RosettaHelper.GetViewBoxHtml("Partials/Navigation.cshtml", "Partial view used to render the top navigation bar.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingMerchelloWeb })
-                    @RosettaHelper.GetViewBoxHtml("RosettaBasePage.cshtml", "Our base page contains the basic setup for our site, such as CSS setup and placing the navigation and logo throughout the site.")
+                    @RosettaHelper.GetViewBoxHtml("Partials/Navigation.cshtml", "Partial view used to render the top navigation bar. Merchello code is used to show the basket count dynamically.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingMerchelloWeb })
+                    @RosettaHelper.GetViewBoxHtml("RosettaBasePage.cshtml", "Our base page contains the basic setup for our site, such as CSS setup and placing the navigation and footer throughout the site. Nothing special.")
                     
                 </div>
             </div>
