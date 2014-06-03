@@ -2,8 +2,7 @@
 @using Merchello.Web
 
 @{  
-    <!-- Note: AncestorOrSelf only works here if you hard-code the Id of your home page as the parameter. -->
-    var home = Umbraco.TypedContent(1054).AncestorOrSelf(1);
+    var home = CurrentPage.AncestorOrSelf(1);
 }
 
 <!-- we're using CSS from twitter bootstrap -->
@@ -21,7 +20,7 @@
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <div>
                 <ul class="nav navbar-nav">
                     
                 <!-- in the razor code here, we iterate through each child of the home page that is set to "visible" -->

@@ -3,8 +3,7 @@
     // Model.Content is the current page that we're on
     // AncestorsOrSelf is all of the ancestors this page has in the tree
     // (1) means: go up to level 1 and stop looking for more ancestors when you get there
-    // First() gets the first ancestor found (the home page, on level 1)
-    var homePage = CurrentPage.AncestorsOrSelf(1).First();
+    var homePage = CurrentPage.AncestorOrSelf(1);
 
     // The menu items we want are all of the children of the homepage
     // We also check if "Hide in navigation" is on in the menu, we shouldn't show hidden items
