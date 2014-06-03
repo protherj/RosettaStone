@@ -1,8 +1,7 @@
 ﻿@inherits Merchello.Web.Mvc.MerchelloTemplatePage
+@using Merchello.Web
 @using Controllers
 @using Merchello.Core
-@using Merchello.Web
-@using Models
 
 @{
     Layout = "RosettaBasePage.cshtml";
@@ -10,7 +9,7 @@
 }
 
 <!-- Quick and easy way to check whether the current shopping basket is empty. -->
-<!-- This only works if you inherit from the MerchelloTemplatePage -->
+<!-- "CurrentCustomer" is available because we've inherited from the MerchelloTemplatePage -->
 @if (CurrentCustomer.Basket().IsEmpty)
 {
     Response.Redirect("/");
@@ -23,7 +22,7 @@
 
 <div class="bs-docs-example">
     
-    @using (Html.BeginUmbracoForm<CheckoutController>("SaveAddress", new { area = "RosettaStone"}, new { @class="form form-horizontal", role = "form"}))
+    @using (Html.BeginUmbracoForm<CheckoutController>("SaveAddress", new { area = "RosettaStone" }, new { @class = "form form-horizontal", role = "form" }))
     {
     
         @Html.Action("RenderAddressForm", "Checkout", new { area = "RosettaStone", addressType = AddressType.Shipping })
@@ -44,9 +43,8 @@
 
 @section ViewList
 {
-    @RosettaHelper.GetViewBoxHtml("RosettaCheckout1Address.cshtml","Going to add documentation.")
-    @RosettaHelper.GetViewBoxHtml("Partials/CheckoutStep1Address.cshtml","Partial View. Documentation...")
-
+    @RosettaHelper.GetViewBoxHtml("RosettaCheckout1Address.cshtml", "Redirects to home if basket is empty, or displays partial view for address form.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingMerchelloWeb })
+    @RosettaHelper.GetViewBoxHtml("Partials/CheckoutStep1Address.cshtml","Partial view for the actual shipping address form. Abstracted into partial view to allow for reuse. The address model is passed into the template page when it's inherited here, see code for more information on this.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingModels, RosettaHelper.UsingMerchelloCore })
 }
 
 @section AddJs

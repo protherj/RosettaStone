@@ -56,6 +56,9 @@ public class RosettaHelper
     public static string InheritsMerchelloTemplatePage = "<b>Inherits</b> <abbr title=\"Exposes the CustomerContext and MerchelloHelper\">Merchello.Web.Mvc.MerchelloTemplatePage</abbr>";
     public static string UsingMerchelloWeb = "<b>Using</b> <abbr title=\"Typically included to expose extensions and certain Merchello types such as the Basket\">Merchello.Web</abbr>";
     public static string UsingMerchelloContentEditing = "<b>Using</b> <abbr title=\"Typically included to expose basic display helpers\">Merchello.Web.Models.ContentEditing</abbr>";
+    public static string UsingMerchelloCore = "<b>Using</b> <abbr title=\"Includes the core code from Merchello, such as enums\">Merchello.Core</abbr>";
+    public static string UsingControllers = "<b>Using</b> <abbr title=\"Includes Merchello surface controllers, such as the CheckoutController responsible for the checkout process\">Controllers</abbr>";
+    public static string UsingModels = "<b>Using</b> <abbr title=\"Merchello makes access to POCO models easy via this namespace, such as the address model\">Models</abbr>";
 
 
 }
