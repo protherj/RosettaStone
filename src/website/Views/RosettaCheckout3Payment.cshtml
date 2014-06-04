@@ -13,7 +13,11 @@
         Text = x.PaymentMethod.Name
     });
 
-            
+}
+
+@if (CurrentPage.HasValue("instructionHeading"))
+{
+    <h2>@CurrentPage.instructionHeading<br /><small>@CurrentPage.instructionTagLine</small></h2>
 }
 
 @using (Html.BeginUmbracoForm<CheckoutController>("SavePaymentInformation", new { @class = "form form-horizontal", role = "form" }))
@@ -23,18 +27,17 @@
  <div class="bs-docs-example">
     <div class="row">
         <div class="col-lg-6">
-                    
+            
                 
                 <div class="control-group">
-                    @Html.Label("Select your paymentMethod", new { @class = "control-label"})
+                    @Html.Label("Select your Payment Method", new { @class = "control-label"})
                     <div class="controls">
                         @Html.DropDownList("paymentMethodKey", paymentMethods, new { @class="form-control"})
                     </div>
                 </div>
 
-
-           
         </div>
+
         <div class="col-lg-6">
             @Html.Action("RenderAddressForm", "Checkout", new { area = "RosettaStone", addressType = AddressType.Billing })
         </div>
@@ -49,8 +52,12 @@
                 
 }
 
+<div class="hero-spacer">
+    @CurrentPage.instruction
+</div>
 
 @section ViewList
 {
-    @RosettaHelper.GetViewBoxHtml("/Partials/PaymentMethodSelection.cshtml", "Payment Method Selection", new[] { "Controller information" })
+    @RosettaHelper.GetViewBoxHtml("RosettaCheckout3Payment.cshtml", "Redirects to home if basket is empty, or displays partial view for address form. Also displays payment method options for customer to choose from.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingControllers, RosettaHelper.UsingMerchelloCore, RosettaHelper.UsingModels }) 
+    @RosettaHelper.GetViewBoxHtml("Partials/AddressForm.cshtml","Partial view for the address form. Abstracted into partial view to allow for reuse. Here we're passing in a parameter to specify billing address.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingModels, RosettaHelper.UsingMerchelloCore })
 }
