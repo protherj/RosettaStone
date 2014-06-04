@@ -5,6 +5,7 @@ using Merchello.Core;
 using Merchello.Core.Gateways.Payment;
 using Merchello.Core.Models;
 using Models;
+using Umbraco.Core;
 using Umbraco.Web.Mvc;
 using Merchello.Web;
 using System.Web.Mvc;
@@ -200,6 +201,31 @@ namespace Controllers
             return PartialView("InvoiceSummary", Basket.SalePreparation().PrepareInvoice());
         }
 
+
+        /// <summary>
+        /// Renders the receipt
+        /// </summary>
+        [ChildActionOnly]
+        public ActionResult RenderReceipt(string invoiceKey)
+        {
+            Guid key;
+            if (Guid.TryParse(invoiceKey, out key))
+            {
+                var invoice = Services.InvoiceService.GetByKey(key);
+                return RenderInvoice(invoice);
+            }
+            throw new InvalidOperationException();
+        }
+
+        /// <summary>
+        /// Renders the InvoiceSummary Partial View
+        /// </summary>
+        /// <param name="invoice">The <see cref="IInvoice"/> to be displayed</param>
+        private ActionResult RenderInvoice(IInvoice invoice)
+        {
+            return PartialView("InvoiceSummary", invoice);
+        }
+
         [HttpGet]
         public ActionResult CustomerPurchaseAndProcessPayment()
         {
@@ -213,7 +239,7 @@ namespace Controllers
 
             IPaymentResult attempt;
 
-            if (Constants.ProviderKeys.Payment.CashPaymentProviderKey == paymentMethod.ProviderKey)
+            if (Merchello.Core.Constants.ProviderKeys.Payment.CashPaymentProviderKey == paymentMethod.ProviderKey)
             {
                 // AuthorizePayment will save the invoice with an Invoice Number.
                 //
@@ -244,7 +270,12 @@ namespace Controllers
             }
 
 
-            return RedirectToUmbracoPage(ReceiptId);
+            //return RedirectToUmbracoPage(ReceiptId);
+            var receipt = Umbraco.TypedContent(ReceiptId);
+            return
+                Redirect(string.Format("{0}?inv={1}", receipt.Url,
+                                       attempt.Invoice.Key.ToString().EncryptWithMachineKey()));
+
         }
 
         /// <summary>
