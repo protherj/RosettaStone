@@ -4,8 +4,7 @@
 @using Merchello.Core
 
 @{
-    Layout = "RosettaBasePage.cshtml";
-    
+    Layout = "RosettaBasePage.cshtml";   
 }
 
 <!-- Quick and easy way to check whether the current shopping basket is empty. -->
@@ -27,7 +26,6 @@
     
         @Html.Action("RenderAddressForm", "Checkout", new { area = "RosettaStone", addressType = AddressType.Shipping })
         
-        
         <div class="text-right">
             <input type="submit" value="Proceed to Step 2 (Get Shipping Rate Quotes)" class="btn btn-primary"/>
         </div>
@@ -36,15 +34,13 @@
 </div>
 
 <div class="hero-spacer">
-
-@CurrentPage.instruction
-    
+    @CurrentPage.instruction
 </div>
 
 @section ViewList
 {
     @RosettaHelper.GetViewBoxHtml("RosettaCheckout1Address.cshtml", "Redirects to home if basket is empty, or displays partial view for address form.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingMerchelloWeb })
-    @RosettaHelper.GetViewBoxHtml("Partials/CheckoutStep1Address.cshtml","Partial view for the actual shipping address form. Abstracted into partial view to allow for reuse. The address model is passed into the template page when it's inherited here, see code for more information on this.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingModels, RosettaHelper.UsingMerchelloCore })
+    @RosettaHelper.GetViewBoxHtml("Partials/AddressForm.cshtml","Partial view for the address form. Abstracted into partial view to allow for reuse. Here we're passing in a parameter to specify shipping address.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage, RosettaHelper.UsingModels, RosettaHelper.UsingMerchelloCore })
 }
 
 @section AddJs
