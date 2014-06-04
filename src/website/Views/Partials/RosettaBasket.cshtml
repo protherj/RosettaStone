@@ -3,6 +3,7 @@
 @using Models
 
 @{
+    //these are hard coded with URLs for our store
     const string continueShoppingUrl = "/catalog/";
     const string checkoutStep1Url = "/checkout/checkout-1-shipping-address/";
 }
@@ -86,12 +87,10 @@
         <div class="row">
                 
             <div class="col-lg-8">
-            <a href="@continueShoppingUrl">Continue Shopping</a>
+                <a href="@continueShoppingUrl">Continue Shopping</a>
             </div>
             <div  class="col-lg-4 text-right">
-                        <input type="submit" id="update-cart" class="btn btn-default" name="update" value="Update" />
-
-            <!-- Note: This link is hard coded for our specific page name -->
+                <input type="submit" id="update-cart" class="btn btn-default" name="update" value="Update" />
                 <a href="@checkoutStep1Url" class="btn btn-primary">Checkout</a>
             </div>
         </div>

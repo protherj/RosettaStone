@@ -34,7 +34,7 @@
                         <h3>@resource.Name</h3>
                         <p>@resource.brief</p>
                         
-                        <button class="@(string.IsNullOrEmpty(resource.buttonClass) ? "btn btn-default" : resource.buttonClass)" onclick="window.open('@resource.linkUrl','_blank')"><i class="fa fa-github"></i> | @resource.buttonLabel</button>
+                        <button class="btn btn-default" onclick="window.open('@resource.linkUrl','_blank')">@resource.buttonLabel</button>
                     </div>
                 </div>
             </div>
