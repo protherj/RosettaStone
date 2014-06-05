@@ -54,5 +54,6 @@
 
 @section ViewList
 {
+    @RosettaHelper.GetViewBoxHtml("Partials/RosettaAddToCart.cshtml","Displays the form to add a given product to your basket, including drop-downs for options and variants if applicable. View is called from the BasketController.", new string[] { RosettaHelper.InheritsMerchelloViewPage, RosettaHelper.UsingControllers })
     @RosettaHelper.GetViewBoxHtml("RosettaProductPage.cshtml", "View responsible for rendering a detailed view of a Merchello Product.", new string[] { RosettaHelper.InheritsMerchelloTemplatePage + " - specifically used to expose the MerchelloHelper object.  Referenced as <b>Merchello</b> in the razor", "Html.Action call to the BasketController (SurfaceController) to render the RosettaAddToCart Partial View" })
 }
