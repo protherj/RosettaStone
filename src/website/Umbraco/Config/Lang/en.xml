@@ -1072,6 +1072,11 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="authorized"> Authorized</key>
     <key alias="paymentHistory"> Payment History</key>
     <key alias="paymentHistoryHelper">Status records for one or more payments</key>
+    <key alias="paymentProcessedBy">Payment processed by:</key>
+  </area>
+  <area alias="merchelloFulfillShipment">
+    <!-- phrases -->
+    <key alias="fulfillManually">Fulfill Manually</key>
   </area>
   <area alias="merchelloWarehouse">
     <!-- things -->
@@ -1099,7 +1104,7 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="tracking">Inventory Tracking</key>
     <!-- actions -->
     <!-- phrases -->
-  </area>price
+  </area>
   <area alias="merchelloPlaceholders">
     <key alias="enterProduct">Enter a product name</key>
     <key alias="enterOrder">Start typing an order number or name...</key>to
@@ -1127,7 +1132,7 @@ To manage your website, simply open the umbraco back office and start adding con
     <key alias="status"> Status</key>
     <key alias="type"> Type</key>
     <key alias="amount"> Amount</key>
-    <key alias="via"> Via</key>
+    <key alias="via">Via</key>
     <key alias="options">Options</key>
     <key alias="select">Select</key>
     <key alias="all">All</key>
@@ -1196,6 +1201,8 @@ To manage your website, simply open the umbraco back office and start adding con
   <area alias="merchelloShippingHistory">
     <key alias="shipmentHistory" >Shipment History</key>
     <key alias="shipmentHistoryHelper" >Status records for one or more shipments</key>
+    <key alias="shipment" >Shipment</key>
+    <key alias="trackingNumber" >Tracking #</key>
   </area>
   <area alias="merchelloTaxation">
     <key alias="taxation" >Taxation</key>
