@@ -22,25 +22,25 @@
                 @if (CurrentPage.HasProperty("productImage") && CurrentPage.HasValue("productImage"))
                 {
                     IPublishedContent image = Umbraco.Media(CurrentPage.GetPropertyValue("productImage"));
-                    <img src="@image.Url" alt="@HttpUtility.HtmlEncode(image.Name)" />
+                    <img src="@image.Url" class="col-lg-12" alt="@HttpUtility.HtmlEncode(image.Name)" />
                 }
                 </div>
             </div>
             
             <div class="col-lg-4">
-            <!-- Note this important distinction: Sometimes we are accessing the Umbraco page content ("CurrentPage") -->
-        <!--   and sometimes we are accessing the linked Merchello variable "product" which is Merchello.Product(CurrentPage.merchelloProduct) -->
-        <h3>@product.Name</h3>
-        <p>@CurrentPage.productDescription</p>
-        <p id="productPrice" style="font-size: 2.5em">@product.Price.ToString("C")</p>
+                <!-- Note this important distinction: Sometimes we are accessing the Umbraco page content ("CurrentPage") -->
+                    <!--   and sometimes we are accessing the linked Merchello variable "product" which is Merchello.Product(CurrentPage.merchelloProduct) -->
+                    <h3>@product.Name</h3>
+                    <p>@CurrentPage.productDescription</p>
+                    <p id="productPrice" style="font-size: 2.5em">@product.Price.ToString("C")</p>
       
         
-        <!-- We're calling the RenderAddToCart action that can be found in BasketController.cs code. -->
-        <!--    This action will take care of displaying options if needed and the 'Add To Cart' button (it recursively calls the "RosettaAddToCart.cshtml" partial view) -->
-        @Html.Action("RenderAddToCart", "Basket", new { area = "RosettaStone", product = product })
+                    <!-- We're calling the RenderAddToCart action that can be found in BasketController.cs code. -->
+                    <!--    This action will take care of displaying options if needed and the 'Add To Cart' button (it recursively calls the "RosettaAddToCart.cshtml" partial view) -->
+                    @Html.Action("RenderAddToCart", "Basket", new { area = "RosettaStone", product = product })
             
-                </div>
             </div>
+        </div>
     }
     
     <hr/>
